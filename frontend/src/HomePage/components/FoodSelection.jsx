@@ -4,6 +4,7 @@ import biryani from '../../assets/biryani.png';
 import rolls from '../../assets/roll.png';
 import thali from '../../assets/thali.png';
 import noodles from '../../assets/noodles.png';
+import { searchDish } from '../api/zomatoApi';
 
 
 const FoodSelection = () => {
@@ -59,13 +60,21 @@ const FoodSelection = () => {
     }
   ];
 
+
+  const handleItemClick = async(name)=>{
+    console.log(name);
+    const data = await searchDish(name)
+    console.log(data);
+  }
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-3xl font-bold text-center mb-8">What's on your mind?</h2>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {foodItems.map((food) => (
-          <div key={food.id} className="flex flex-col items-center">
+          <div onClick={()=>(handleItemClick(food.name))} key={food.id} className="flex flex-col items-center">
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-2">
               <img 
                 src={food.image || "../assets/pizza.png"} 

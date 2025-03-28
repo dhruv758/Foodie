@@ -3,6 +3,7 @@ import HomeNavbar from '../components/HomeNavbar';
 import chef from "../../assets/chef.png";
 import FoodSelection from '../components/FoodSelection';
 import { useNavigate } from 'react-router-dom';
+import { searchDish } from '../api/zomatoApi';
 
 function HomePage() {
 
@@ -15,29 +16,9 @@ function HomePage() {
       e.preventDefault();
       console.log(searchInput);
 
-      try {
-        const response = await fetch("http://localhost:3000/api/zomato", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ dish:searchInput}),
-        });
-    
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-    
-        const data = await response.json();
-        console.log("seach request:", data);
-        setSearchInput("");
-        navigate("/search")
-        
-        
-      } catch (error) {
-        console.error("There was an error during login:", error);
-      }
-      
+      const data = await searchDish(searchInput)
+      navigate("/")
+      console.log(data)
     }
 
   return (

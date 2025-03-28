@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 exports.getZomatoData = async(req,res)=>{
     try {
       const {dish} = req.body;
-      
+      console.log(dish)
         const url = `https://www.zomato.com/ncr/delivery/dish-${dish}`;
         console.log(url);
         const response = await axios.get(url, {
