@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Header from './components/Header';
-import { SectionHeader, FoodTypeSelector } from './components/SectionHeader';
-import FoodCard from './components/FoodCard';
+import Header from '../components/Header';
+import { SectionHeader, FoodTypeSelector } from '../components/SectionHeader';
+import FoodCard from '../components/FoodCart';
 
 const initialFoodData = [
   { id: 1, name: 'Dominos', image: 'card.png', rating: 3.5, type: 'Veg' },
@@ -15,7 +15,7 @@ const initialFoodData = [
   { id: 9, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Veg' },
 ];
 
-const FoodApp = () => {
+const SearchResPage = () => {
   const [foods, setFoods] = useState(initialFoodData);
   const [cartItems, setCartItems] = useState([]);
   const [selectedType, setSelectedType] = useState('');
@@ -47,10 +47,10 @@ const FoodApp = () => {
     <div className="max-w-screen-xl mx-auto p-4">
       <Header cartCount={cartItems.length} />
       <SectionHeader handlePlusClick={handlePlusClick} />
-      <FoodTypeSelector 
+      {/* <FoodTypeSelector 
         selectedType={selectedType} 
         handleTypeSelect={handleTypeSelect} 
-      />
+      /> */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredFoods.map((food) => (
@@ -67,4 +67,4 @@ const FoodApp = () => {
   );
 };
 
-export default FoodApp;
+export default SearchResPage;

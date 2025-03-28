@@ -5,7 +5,7 @@ import FoodSelection from '../components/FoodSelection';
 import { useNavigate } from 'react-router-dom';
 import { searchDish } from '../api/zomatoApi';
 
-function HomePage() {
+const HomePage =()=> {
 
 
     const navigate = useNavigate();
@@ -17,7 +17,7 @@ function HomePage() {
       console.log(searchInput);
 
       const data = await searchDish(searchInput)
-      navigate("/")
+      navigate("/search")
       console.log(data)
     }
 

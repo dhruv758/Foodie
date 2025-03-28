@@ -5,10 +5,15 @@ import rolls from '../../assets/roll.png';
 import thali from '../../assets/thali.png';
 import noodles from '../../assets/noodles.png';
 import { searchDish } from '../api/zomatoApi';
+import { useNavigate } from 'react-router-dom';
 
 
 const FoodSelection = () => {
   // Food items data array
+
+  const navigate = useNavigate();
+
+
   const foodItems = [
     {
       id: 1,
@@ -65,6 +70,9 @@ const FoodSelection = () => {
     console.log(name);
     const data = await searchDish(name)
     console.log(data);
+
+    navigate("/search")
+
   }
 
 
