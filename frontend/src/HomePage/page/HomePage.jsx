@@ -17,8 +17,8 @@ const HomePage =()=> {
       console.log(searchInput);
 
       const data = await searchDish(searchInput)
-      navigate("/search")
-      console.log(data)
+      navigate("/search" , { state: { data } })
+      
     }
 
   return (

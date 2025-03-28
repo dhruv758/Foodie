@@ -71,7 +71,7 @@ const FoodSelection = () => {
     const data = await searchDish(name)
     console.log(data);
 
-    navigate("/search")
+    navigate("/search" , { state: { data } })
 
   }
 
