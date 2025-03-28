@@ -7,11 +7,12 @@ import {
 } from "@heroicons/react/24/outline";
 import "../CssStyle/login.css";
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hook/context/authContext";
 
 export default function Login() {
 
   const navigate = useNavigate()
-
+  const {login} = useAuth();
   const [credential, setCredential] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +37,8 @@ export default function Login() {
       const data = await response.json();
       console.log("Login successful:", data);
       setCredential({email:"" , password:""});
-      navigate("/")
+      login(credential.email , data.token);
+      navigate("/home")
       
       
     } catch (error) {

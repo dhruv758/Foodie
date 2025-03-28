@@ -6,7 +6,7 @@ const Router = express.Router();
 
 
 
-Router.get("/api/zomato" , getZomatoData);
+Router.post("/api/zomato" , getZomatoData);
 
 
 module.exports = Router;
