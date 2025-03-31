@@ -1,6 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Okra&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@layer base {
+  html {
+    font-family: 'Okra', 'Helvetica', sans-serif;
+  }
+}
 
 :root {
   --background: 0 0% 100%;
@@ -38,6 +46,7 @@
   --chart-4: 120 65% 40%;
   --chart-5: 280 60% 50%;
 }
+
 
 .dark {
   --background: 222.2 47.4% 11.2%;
