@@ -6,8 +6,9 @@ const cheerio = require('cheerio');
 exports.getZomatoData = async(req,res)=>{
     try {
       const {dish} = req.body;
+      console.log(dish)
         const url = `https://www.zomato.com/ncr/delivery/dish-${dish}`;
-
+        console.log(url);
         const response = await axios.get(url, {
             headers: {
               // Mimic a browser request to avoid being blocked
@@ -16,6 +17,7 @@ exports.getZomatoData = async(req,res)=>{
                             'Chrome/92.0.4515.131 Safari/537.36'
             }
           });
+          
           const html = response.data;
 
           const $ = cheerio.load(html);
