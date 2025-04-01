@@ -1,0 +1,83 @@
+/* Common styles shared across components */
+.input-container {
+    position: relative;
+  }
+  
+  .input-icon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding-left: 0.75rem;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+  
+  .icon {
+    height: 1.25rem;
+    width: 1.25rem;
+    color: #9ca3af;
+  }
+  
+  .auth-input {
+    width: 358px;
+    height: 40px;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+  }
+  
+  .auth-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #1ac073;
+    border-color: transparent;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .primary-button {
+    width: 358px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #1ac073;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 500;
+  }
+  
+  .primary-button:hover {
+    background-color: #15a05f;
+  }
+  
+  .secondary-button {
+    width: 358px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid #1ac073;
+    color: #1ac073;
+    background-color: transparent;
+    cursor: pointer;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 500;
+  }
+  
+  .secondary-button:hover {
+    background-color: #f0fff8;
+  }
+  
+  

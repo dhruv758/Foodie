@@ -1,0 +1,217 @@
+const { comparePassword, bcryptPassword } = require("../middlewares/authPasswordmiddleware");
+const express = require("express")
+const jwt = require("jsonwebtoken");
+const axios = require("axios")
+const userSchema = require("../model/userModel");
+const { sendOTPEmail } = require("./emailConfig");
+
+
+function generateOTP() {
+  // e.g. from 0000 to 9999
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+
+// Register Controller
+exports.registerController = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      console.log(req.body)
+      // Validate input
+      if (!email || !password ) {
+        return res.status(400).json({ message: "Missing credentials" });
+      }
+  
+      // Check if user already exists
+      const userExist = await userSchema.findOne({ email });
+      if (userExist) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+  
+      // Hash password
+      const hashedPassword = await bcryptPassword(password);
+  
+      // Create new user
+      const user = new userSchema({
+        email,
+        password: hashedPassword,
+      });
+        
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user._id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+  
+      await user.save();
+  
+      return res.status(200).json({ message: "Successfully registered"  , token });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+
+
+// Login Controller
+exports.loginController = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      console.log(req.body);
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ message: "Missing email or password" });
+      }
+      
+      // Check if user exists
+      const user = await userSchema.findOne({ email });
+      console.log(!user)
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Validate password
+      const isPasswordValid = comparePassword(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user._id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+  
+      return res.status(200).json({
+        message: "Login successful",
+        token
+      });
+  
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+
+
+  exports.sendOtpController = async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+      // Validate input
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "Incomplete credentials: Email is required.",
+        });
+      }
+  
+      // Check if user exists
+      const userExist = await userSchema.findOne({email });
+      if (!userExist) {
+        return res.status(404).json({
+          success: false,
+          message: "User is not registered.",
+        });
+      }
+      
+      console.log(userExist);
+      // Generate and send OTP
+      const otp = generateOTP();
+  
+      try {
+        await sendOTPEmail(email, otp);
+      } catch (err) {
+        console.error("Error sending OTP email:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send OTP email. Please try again.",
+        });
+      }
+  
+      // Save OTP to the user record
+      userExist.otp = otp;
+      await userExist.save();
+  
+      return res.status(202).json({
+        success: true,
+        message: "OTP sent to email successfully.",
+        username: userExist.username,
+        id: userExist._id,
+      });
+  
+    } catch (error) {
+      console.error("Internal Server Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    }
+  };
+
+
+  exports.verifyOtpController = async(req,res)=>{
+
+    const{otp , email}= req.body;
+    console.log(req.body);
+      // Check if email and OTP are provided
+      if (!email || !otp) {
+        return res.status(400).json({ error: "Email and OTP are required." });
+      }
+
+      try {
+        // Find user by email
+        const user = await userSchema.findOne({ email });
+        if (!user) {
+          return res.status(404).json({ error: "User not found." });
+        }
+        console.log(user);
+        // Verify the OTP stored in the database against the one provided
+        if (user.otp != otp) {
+          return res.status(401).json({ error: "Invalid OTP." });
+        }
+
+        // OTP is valid, optionally update user status or clear OTP here
+        // e.g., user.otp = null; user.isVerified = true; await user.save();
+
+        return res.status(200).json({ message: "OTP verified successfully." });
+      } catch (error) {
+        console.error("Error verifying OTP:", error);
+        return res.status(500).json({ error: "Server error." });
+      }
+
+
+
+  }
+
+  exports.updatePasswordController = async(req,res)=>{
+
+    const {email ,newPassword} = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: 'Email and new password are required.' });
+    }
+
+    try {
+      // Find user by email
+      const user = await userSchema.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+  
+      // Hash the new password
+      const hashedPassword = await bcryptPassword(newPassword);
+  
+      // Update the user's password and save
+      user.password = hashedPassword;
+      await user.save();
+  
+      return res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return res.status(500).json({ error: 'Internal server error.' });
+    }
+
+  }

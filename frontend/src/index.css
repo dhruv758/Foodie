@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Okra&display=swap');
 @tailwind base;
 @tailwind components;
@@ -69,3 +70,11 @@
   --input: 217.2 32.6% 17.5%;
   --ring: 212.7 26.8% 83.9%;
 }
+=======
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+
+/* Import common styles */
+@import "../src/Authentication/CssStyle/common.css";
+
+@import "tailwindcss";
+>>>>>>> 66bc31d090053f54c3746288d979a600eb191cd9
