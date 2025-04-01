@@ -7,18 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node modules and build directories
+/node_modules
+/dist
+/dist-ssr
+/build
+
+# Environment files
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+.vscode/            # Visual Studio Code config directory
+!.vscode/extensions.json   # Keep the extensions config if needed
+.idea/              # JetBrains IDE config directory
+
+# macOS system files
 .DS_Store
+
+# Windows system files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# Temporary or swap files
 *.sw?
+
+# Other specific ignores (e.g., coverage, etc.)
+/coverage           # If you're using coverage reports, ignore them
