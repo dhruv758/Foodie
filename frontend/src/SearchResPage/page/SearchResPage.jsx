@@ -4,7 +4,17 @@ import { SectionHeader, FoodTypeSelector } from '../components/SectionHeader';
 import FoodCard from '../components/FoodCart';
 import { useLocation } from 'react-router-dom';
 
-
+// const initialFoodData = [
+//   { id: 1, name: 'Dominos', image: 'card.png', rating: 3.5, type: 'Veg' },
+//   { id: 2, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Non-Veg' },
+//   { id: 3, name: 'Dominos', image: 'img1.jpg', rating: 3.5, type: 'Veg' },
+//   { id: 4, name: 'Dominos', image: 'img1.jpg', rating: 3.5, type: 'Non-Veg' },
+//   { id: 5, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Veg' },
+//   { id: 6, name: 'Dominos', image: 'img1.jpg', rating: 3.5, type: 'Non-Veg' },
+//   { id: 7, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Veg' },
+//   { id: 8, name: 'Dominos', image: 'img1.jpg', rating: 3.5, type: 'Veg' },
+//   { id: 9, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Veg' },
+// ];
 
 const SearchResPage = () => {
   const location = useLocation();
