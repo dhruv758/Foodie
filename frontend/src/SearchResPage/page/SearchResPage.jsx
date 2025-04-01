@@ -14,7 +14,7 @@ const initialFoodData = [
   { id: 8, name: 'Dominos', image: 'img1.jpg', rating: 3.5, type: 'Veg' },
   { id: 9, name: 'Dominos', image: 'img2.jpg', rating: 3.5, type: 'Veg' },
 ];
-
+ 
 const FoodApp = () => {
   const [foods, setFoods] = useState(initialFoodData);
   const [cartItems, setCartItems] = useState([]);

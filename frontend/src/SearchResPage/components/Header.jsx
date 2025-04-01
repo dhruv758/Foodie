@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import locationIcon from '../../assets/location.png';
+import userProfileIcon from '../../assets/userProfile.png';
+import shoppingCartIcon from '../../assets/shopping-cart.png';
 
 const Header = ({ cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,7 +18,7 @@ const Header = ({ cartCount = 0 }) => {
         <div className="flex items-center">
           <span className="text-2xl font-bold text-green-600 mr-4">CVT</span>
           <div className="hidden sm:flex items-center text-gray-500">
-            <img width="25" height="25" src="location.png" alt="marker" className="mr-2" />
+            <img width="25" height="25" src={locationIcon} alt="marker" className="mr-2" />
             <span>NCR</span>
           </div>
         </div>
@@ -88,13 +91,13 @@ const UserActions = ({ cartCount = 0, isMobile = false }) => {
   return (
     <div className={`flex items-center ${isMobile ? 'space-x-4' : 'space-x-3'}`}>
       <img 
-        src="userProfile.png" 
+        src={userProfileIcon} 
         alt="User Profile" 
         className={`cursor-pointer ${isMobile ? 'w-10 h-10' : 'w-8 h-8'}`} 
       />
       <div className="relative">
         <img 
-          src="shopping-cart.png" 
+          src={shoppingCartIcon} 
           alt="Cart" 
           className={`cursor-pointer ${isMobile ? 'w-10 h-10' : 'w-8 h-8'}`} 
         />
