@@ -12,7 +12,6 @@ export default function DishDetails({ selectedDishData, onSelectionChange, selec
     onSelectionChange([user]);
   };
 
-  // Filter users based on search term
   const filteredUsers = selectedDishData.users.filter(user => 
     user.toLowerCase().includes(searchTerm.toLowerCase())
   );

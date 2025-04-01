@@ -37,23 +37,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <Navbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-      {/* Title Section */}
       <div className="mb-4 mt-4 text-center">
         <h1 className="text-2xl font-bold text-gray-900">Today's Menu Selection</h1>
       </div>
-
-      {/* Dish List Section */}
       <div>
         <DishList dishes={dishes} selectedDish={selectedDish} setSelectedDish={setSelectedDish} />
       </div>
 
-      {/* Dish Details and Employee Count Section */}
       {selectedDishData && (
         <div className="flex flex-col sm:flex-row justify-center items-center sm:items-start gap-4 mt-6">
-          {/* Employee Count Display (Centered in small screens) */}
           <div className="w-full sm:w-auto sm:max-w-md mx-auto order-1 sm:order-none">
             <EmployeeCountDisplay 
               dishes={dishes}
@@ -61,7 +55,6 @@ function App() {
             />
           </div>
 
-          {/* Dish Details (Centered in small screens) */}
           <div className="w-full sm:w-auto sm:max-w-md mx-auto order-2 sm:order-none">
             <DishDetails 
               selectedDishData={selectedDishData} 

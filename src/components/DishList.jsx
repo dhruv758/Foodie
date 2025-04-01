@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 export default function DishList({ dishes, selectedDish, setSelectedDish }) {
   return (
     <div className="bg-white border border-gray-300 shadow-sm  rounded-lg p-4 sm:p-6 sm:mx-8">
-      {/* Container for buttons */}
+
       <div className="grid grid-cols-3 sm:grid-cols-8 m-0.5 sm:m-4 gap-3 sm:gap-2 lg:gap-6">
         {dishes.map((dish) => (
           <Button

@@ -1,10 +1,7 @@
 import React from "react";
 
 export default function EmployeeCountDisplay({ dishes, selectedUsers }) {
-  // Total number of employees (unique users across all dishes)
   const totalEmployees = dishes.reduce((total, dish) => total + dish.users.length, 0);
-
-  // Calculate employees left (total employees minus selected employees)
   const employeesLeft = totalEmployees - selectedUsers.length;
 
   return (
