@@ -1,5 +1,5 @@
 import React from 'react';
-import addButtonIcon from '../assets/add-button.png';
+import addButtonIcon from '../../assets/add-button.png';
 
 const SectionHeader = ({ handlePlusClick }) => {
   return (
