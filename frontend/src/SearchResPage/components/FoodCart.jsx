@@ -1,5 +1,6 @@
 import React from 'react';
-
+import addButton from '../../assets/add-button.png';
+import shoppingBasket from '../../assets/shopping-basket.png';
 
 const FoodCard = ({ food, cartItems, addToCart, removeFromCart }) => {
   const isInCart = cartItems.find((item) => item.id === food.id);
@@ -19,7 +20,7 @@ const FoodCard = ({ food, cartItems, addToCart, removeFromCart }) => {
             onClick={() => removeFromCart(food.id)}
             className="bg-yellow-500 text-white font-semibold px-4 py-2 rounded mt-auto flex items-center justify-center space-x-2"
           >
-            <img src="shopping-basket.png" alt="Remove" className="w-5 h-5" />
+            <img src={shoppingBasket} alt="Remove" className="w-5 h-5" />
             <span>Remove</span>
           </button>
         ) : (
@@ -27,7 +28,7 @@ const FoodCard = ({ food, cartItems, addToCart, removeFromCart }) => {
             onClick={() => addToCart(food)}
             className="bg-green-500 text-white font-semibold px-4 py-2 rounded mt-auto flex items-center justify-center space-x-2"
           >
-            <img src="add-button.png" alt="Add to Cart" className="w-5 h-5" />
+            <img src={addButton} alt="Add to Cart" className="w-5 h-5" />
             <span>Add to Cart</span>
           </button>
         )}
