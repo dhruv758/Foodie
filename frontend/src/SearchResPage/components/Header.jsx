@@ -23,47 +23,57 @@ const Header = ({ cartCount = 0 }) => {
           </div>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <div className="sm:hidden">
-          <button 
-            onClick={toggleMenu}
-            className="text-green-600 focus:outline-none"
-          >
-            {isMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+        {/* Navigation Links - Now visible on desktop */}
+        <div className="hidden sm:flex items-center space-x-4">
+          <span className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Home</span>
+          <span className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Summary</span>
+          <span className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Polls</span>
         </div>
 
-        {/* User Actions for Desktop */}
-        <div className="hidden sm:flex items-center space-x-4">
+        {/* Search Bar for Desktop */}
+        <div className="hidden sm:block">
           <SearchBar />
+        </div>
+
+        {/* User Actions - Always visible */}
+        <div className="flex items-center space-x-4">
           <UserActions cartCount={cartCount} />
+          
+          {/* Mobile Menu Toggle - Only on small screens */}
+          <div className="sm:hidden">
+            <button 
+              onClick={toggleMenu}
+              className="text-green-600 focus:outline-none"
+            >
+              {isMenuOpen ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Now only contains search and location */}
       {isMenuOpen && (
         <div className="sm:hidden absolute top-full left-0 w-full bg-white shadow-lg z-20">
-          {/* Navigation Links */}
+          {/* Mobile Navigation Links */}
           <div className="flex flex-col">
             <span className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">Home</span>
             <span className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">Summary</span>
             <span className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">Polls</span>
           </div>
-
-          {/* Mobile Search and User Actions */}
+          
+          {/* Mobile Search */}
           <div className="p-4 space-y-4">
             <SearchBar isMobile={true} />
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Location: NCR</span>
-              <UserActions cartCount={cartCount} isMobile={true} />
             </div>
           </div>
         </div>
