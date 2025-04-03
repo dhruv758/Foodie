@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+// import { searchDish } from '../api/zomatoApi'; // Adjust the path as needed
+import { searchDish } from '@/HomePage/api/zomatoApi';
 import locationIcon from '../../assets/location.png';
 import userProfileIcon from '../../assets/userProfile.png';
 import shoppingCartIcon from '../../assets/shopping-cart.png';
@@ -74,14 +77,30 @@ const Header = ({ cartCount = 0, onCartClick }) => {
 };
 
 const SearchBar = ({ isMobile = false }) => {
+  const [searchInput, setSearchInput] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearchClick = async (e) => {
+    e.preventDefault();
+    if (searchInput.trim()) {
+      const data = await searchDish(searchInput);
+      navigate("/search", { state: { data } });
+    }
+  };
+
   return (
     <div className={`relative ${isMobile ? 'w-full' : 'w-72'}`}>
       <input
         type="text"
         placeholder="Search for Dish"
         className="border rounded-full px-4 py-2 pr-20 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
       />
-      <button className="absolute right-0 top-0 h-full rounded-full bg-yellow-500 hover:bg-yellow-600 text-white px-4">
+      <button 
+        className="absolute right-0 top-0 h-full rounded-full bg-yellow-500 hover:bg-yellow-600 text-white px-4"
+        onClick={handleSearchClick}
+      >
         Search
       </button>
     </div>
