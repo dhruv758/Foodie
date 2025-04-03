@@ -1,3 +1,5 @@
+const fs = require('fs').promises;
+const path = require('path');
 const nodemailer = require('nodemailer');
 const dotenv = require("dotenv");
 dotenv.config()
@@ -26,5 +28,52 @@ async function sendOTPEmail(email, otp) {
       return { success: false, error };
     }
   }
+
+  async function sendAuthorityEmail(email) {
+
+        const templatePath = path.join(__dirname, '..', 'emailTemplate', 'emailTemp.html');
+          console.log(templatePath)
+        let emailTemplate;
+
+        try {
+          emailTemplate = await fs.readFile(templatePath, "utf8");
+        } catch (err) {
+          console.error("Error reading email template:", err);
+          return res.status(500).json({ message: "Error reading email template" });
+        }
+
+
+        // Replace placeholders in email template
+        const customizedTemplate = emailTemplate
+        .replace("{{email}}", email)
+        .replace("{{acceptUrl}}", `http://localhost:5173/approve-accept?user=${encodeURIComponent(email)}`)
+        .replace("{{rejectUrl}}", `http://localhost:5173/approve-reject?user=${encodeURIComponent(email)}`);
+
+          // Create email options
+          const mailOptions = {
+            from:"keshavlohiyabusiness@gmail.com",
+            to: process.env.authEmail,
+            subject: "Permission for a new user wants to register",
+            html: customizedTemplate,
+          };
+
+
+          // Send email before saving user
+          try {
+            const info = await transporter.sendMail(mailOptions);
+            console.log("Email sent:", info.response);
+
+            return ;
+
+          } catch (emailError) {
+            console.error("Error sending email:", emailError);
+            throw new Error(`Error sending authority email: ${error.message}`);
+          }
+
+  }
+
+
   
-  module.exports = { sendOTPEmail };
+  module.exports = { sendOTPEmail , sendAuthorityEmail };
+
+

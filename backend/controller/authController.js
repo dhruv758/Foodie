@@ -3,8 +3,13 @@ const express = require("express")
 const jwt = require("jsonwebtoken");
 const axios = require("axios")
 const userSchema = require("../model/userModel");
-const { sendOTPEmail } = require("./emailConfig");
-
+const { sendOTPEmail, transporter, sendAuthorityEmail } = require("./emailConfig");
+const verifyUserSchema = require("../model/verifyModel");
+const nodemailer = require('nodemailer');
+const fs = require('fs').promises;;
+const path = require('path');
+const dotenv = require("dotenv");
+dotenv.config()
 
 function generateOTP() {
   // e.g. from 0000 to 9999
@@ -12,46 +17,51 @@ function generateOTP() {
 }
 
 
+
+
+
+
 // Register Controller
-exports.registerController = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      console.log(req.body)
-      // Validate input
-      if (!email || !password ) {
-        return res.status(400).json({ message: "Missing credentials" });
-      }
-  
-      // Check if user already exists
-      const userExist = await userSchema.findOne({ email });
-      if (userExist) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-  
-      // Hash password
-      const hashedPassword = await bcryptPassword(password);
-  
-      // Create new user
-      const user = new userSchema({
-        email,
-        password: hashedPassword,
-      });
-        
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-  
-      await user.save();
-  
-      return res.status(200).json({ message: "Successfully registered"  , token });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+exports.registerVerifyController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Missing credentials" });
     }
-  };
+
+    // Check if user already exists
+    const userExist = await userSchema.findOne({ email });
+    if (userExist) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const verifyUserExist = await verifyUserSchema.findOne({ email })
+    if (verifyUserExist) {
+      return res.status(400).json({ message: "Request had been sent to admin for approval" });
+    }
+    // Hash password
+    const hashedPassword = await bcryptPassword(password);
+
+    const user = new verifyUserSchema({ email, password: hashedPassword });
+
+    // Send email before saving user
+    try {
+      await sendAuthorityEmail(user.email);
+      console.log("email sent successful");
+
+      // Only save user after email is sent successfully
+      await user.save();
+      return res.status(200).json({ message: "User registered. Verification email sent." });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 
 // Login Controller
@@ -215,3 +225,33 @@ exports.loginController = async (req, res) => {
     }
 
   }
+
+
+
+
+
+
+
+//   try {
+//     const templatePath = path.join(__dirname, "..", "emailTemplate", "emailTemp.html");
+//     const data = await fs.promises.readFile(templatePath, "utf8");
+
+//     const customizedTemplate = data
+//         .replace("{{email}}", email)
+//         .replace("{{acceptUrl}}", `http://example.com/accept?user=${encodeURIComponent(email)}`)
+//         .replace("{{rejectUrl}}", `http://example.com/reject?user=${encodeURIComponent(email)}`);
+
+//     const mailOptions = {
+//         from: process.env.email,
+//         to: email,
+//         subject: "Permission for a new user wants to register",
+//         html: customizedTemplate,
+//     };
+
+//     const info = await transporter.sendMail(mailOptions);
+//     console.log("Email sent:", info.response);
+//     return res.status(200).json({ message: "Verification email sent." });
+// } catch (error) {
+//     console.error("Error sending email:", error);
+//     return res.status(500).json({ message: "Error sending email." });
+// }

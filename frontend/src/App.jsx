@@ -5,6 +5,8 @@ import Login from "./Authentication/Components/Login";
 import ForgotPassword from "./Authentication/Components/forgotPassword/ForgotPassword";
 import HomePage from "./HomePage/page/HomePage";
 import SearchResPage from "./SearchResPage/page/SearchResPage";
+import EmailApproval from "./emailReply/AcceptEmail";
+import EmailReject from "./emailReply/RejectEmai";
 
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
 
         <Route  path="/home" element={<HomePage/>}/>
         <Route  path="/search" element={<SearchResPage/>}/>
+        <Route path="/approve-accept" element={<EmailApproval />} />
+        <Route path="/approve-reject" element={<EmailReject />} />
 
       </Routes>
     </>
