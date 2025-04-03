@@ -6,7 +6,7 @@ import ForgotPassword from "./Authentication/Components/forgotPassword/ForgotPas
 import HomePage from "./HomePage/page/HomePage";
 import SearchResPage from "./SearchResPage/page/SearchResPage";
 import EmailApproval from "./emailReply/AcceptEmail";
-import EmailReject from "./emailReply/RejectEmai";
+import EmailReject from "./emailReply/RejectEmail";
 
 
 function App() {
