@@ -21,13 +21,13 @@ const FoodTypeSelector = ({ selectedType, handleTypeSelect }) => {
     <div className="flex space-x-2 mt-2 mb-4">
       <button
         className={`px-4 py-1 rounded-full ${selectedType === 'veg' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-600'}`}
-        onClick={() => ''}
+        onClick={() => handleTypeSelect('veg')}
       >
         Veg
       </button>
       <button
         className={`px-4 py-1 rounded-full ${selectedType === 'non-veg' ? 'bg-red-600 text-white' : 'bg-red-100 text-red-600'}`}
-        onClick={() => ''}
+        onClick={() => handleTypeSelect('non-veg')}
       >
         Non-Veg
       </button>
