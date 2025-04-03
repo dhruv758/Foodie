@@ -6,6 +6,11 @@ import ForgotPassword from "./Authentication/Components/forgotPassword/ForgotPas
 import HomePage from "./HomePage/page/HomePage";
 import SearchResPage from "./SearchResPage/page/SearchResPage";
 
+import EmailApproval from "./emailReply/AcceptEmail";
+import EmailReject from "./emailReply/RejectEmail";
+
+import UserInfo from "./Userinfo/Page/Userinfo";
+
 
 function App() {
   return (
@@ -19,6 +24,12 @@ function App() {
 
         <Route  path="/home" element={<HomePage/>}/>
         <Route  path="/search" element={<SearchResPage/>}/>
+
+        <Route path="/approve-accept" element={<EmailApproval />} />
+        <Route path="/approve-reject" element={<EmailReject />} />
+
+        <Route path="/userinfo" element={<UserInfo/>}/>
+
 
       </Routes>
     </>

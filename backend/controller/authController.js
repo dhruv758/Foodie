@@ -3,8 +3,13 @@ const express = require("express")
 const jwt = require("jsonwebtoken");
 const axios = require("axios")
 const userSchema = require("../model/userModel");
-const { sendOTPEmail } = require("./emailConfig");
-
+const { sendOTPEmail, transporter, sendAuthorityEmail, sendConfirmationEmail, sendRejectionEmail } = require("./emailConfig");
+const verifyUserSchema = require("../model/verifyModel");
+const nodemailer = require('nodemailer');
+const fs = require('fs').promises;;
+const path = require('path');
+const dotenv = require("dotenv");
+dotenv.config()
 
 function generateOTP() {
   // e.g. from 0000 to 9999
@@ -12,46 +17,126 @@ function generateOTP() {
 }
 
 
+
 // Register Controller
-exports.registerController = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      console.log(req.body)
-      // Validate input
-      if (!email || !password ) {
-        return res.status(400).json({ message: "Missing credentials" });
-      }
-  
-      // Check if user already exists
-      const userExist = await userSchema.findOne({ email });
-      if (userExist) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-  
-      // Hash password
-      const hashedPassword = await bcryptPassword(password);
-  
-      // Create new user
-      const user = new userSchema({
-        email,
-        password: hashedPassword,
-      });
-        
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '30d' }
-      );
-  
-      await user.save();
-  
-      return res.status(200).json({ message: "Successfully registered"  , token });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Internal Server Error" });
+exports.registerVerifyController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Missing credentials" });
     }
-  };
+
+    // Check if user already exists
+    const userExist = await userSchema.findOne({ email });
+    if (userExist) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const verifyUserExist = await verifyUserSchema.findOne({ email })
+    if (verifyUserExist) {
+      return res.status(400).json({ message: "Request already been sent to admin for approval" });
+    }
+    // Hash password
+    const hashedPassword = await bcryptPassword(password);
+
+    const user = new verifyUserSchema({ email, password: hashedPassword });
+  
+    // Send email before saving user
+    try {
+      await sendAuthorityEmail(user.email);
+      console.log("email sent successful");
+
+      // Only save user after email is sent successfully
+      await user.save();
+
+      return res.status(200).json({ message: "User register Verification email sent." });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+  } catch (error) {
+    console.error("Server error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.approveUserController = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToApprove = await verifyUserSchema.findOne({ email });
+    if (!userToApprove) {
+      return res.status(404).json({ message: "User not found in pending verification" });
+    }
+    
+    const existingUser = await userSchema.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User is already registered" });
+    }
+
+    const newUser = new userSchema({
+      email: userToApprove.email,
+      password: userToApprove.password, // Assuming password is already hashed
+      createdAt: new Date(),
+    });
+    
+    await newUser.save();
+    await verifyUserSchema.deleteOne({ email });
+
+
+    try {
+      await sendConfirmationEmail(email);
+      console.log("email sent successful");
+
+      return res.status(200).json({ message: "Approval email is been send to the person" });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.rejectUserController = async(req,res)=>{
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToApprove = await verifyUserSchema.findOne({ email });
+    if (!userToApprove) {
+      return res.status(404).json({ message: "User not found in pending verification" });
+    }
+    
+   
+    await verifyUserSchema.deleteOne({ email });
+
+
+    try {
+      await sendRejectionEmail(email);
+      console.log("email sent successful");
+
+      return res.status(200).json({ message: "Rejection email had been send to the person" });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
 
 // Login Controller
@@ -94,7 +179,6 @@ exports.loginController = async (req, res) => {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   };
-
 
   exports.sendOtpController = async (req, res) => {
     try {
@@ -151,7 +235,6 @@ exports.loginController = async (req, res) => {
     }
   };
 
-
   exports.verifyOtpController = async(req,res)=>{
 
     const{otp , email}= req.body;
@@ -186,6 +269,7 @@ exports.loginController = async (req, res) => {
 
   }
 
+
   exports.updatePasswordController = async(req,res)=>{
 
     const {email ,newPassword} = req.body;
@@ -215,3 +299,6 @@ exports.loginController = async (req, res) => {
     }
 
   }
+
+
+
