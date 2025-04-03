@@ -3,7 +3,7 @@ const express = require("express")
 const jwt = require("jsonwebtoken");
 const axios = require("axios")
 const userSchema = require("../model/userModel");
-const { sendOTPEmail, transporter, sendAuthorityEmail } = require("./emailConfig");
+const { sendOTPEmail, transporter, sendAuthorityEmail, sendConfirmationEmail, sendRejectionEmail } = require("./emailConfig");
 const verifyUserSchema = require("../model/verifyModel");
 const nodemailer = require('nodemailer');
 const fs = require('fs').promises;;
@@ -15,9 +15,6 @@ function generateOTP() {
   // e.g. from 0000 to 9999
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
-
-
-
 
 
 
@@ -38,13 +35,13 @@ exports.registerVerifyController = async (req, res) => {
 
     const verifyUserExist = await verifyUserSchema.findOne({ email })
     if (verifyUserExist) {
-      return res.status(400).json({ message: "Request had been sent to admin for approval" });
+      return res.status(400).json({ message: "Request already been sent to admin for approval" });
     }
     // Hash password
     const hashedPassword = await bcryptPassword(password);
 
     const user = new verifyUserSchema({ email, password: hashedPassword });
-
+  
     // Send email before saving user
     try {
       await sendAuthorityEmail(user.email);
@@ -52,7 +49,8 @@ exports.registerVerifyController = async (req, res) => {
 
       // Only save user after email is sent successfully
       await user.save();
-      return res.status(200).json({ message: "User registered. Verification email sent." });
+
+      return res.status(200).json({ message: "User register Verification email sent." });
     } catch (emailError) {
       console.error("Error sending email:", emailError);
       return res.status(500).json({ message: "Error sending email." });
@@ -62,6 +60,83 @@ exports.registerVerifyController = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+exports.approveUserController = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToApprove = await verifyUserSchema.findOne({ email });
+    if (!userToApprove) {
+      return res.status(404).json({ message: "User not found in pending verification" });
+    }
+    
+    const existingUser = await userSchema.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User is already registered" });
+    }
+
+    const newUser = new userSchema({
+      email: userToApprove.email,
+      password: userToApprove.password, // Assuming password is already hashed
+      createdAt: new Date(),
+    });
+    
+    await newUser.save();
+    await verifyUserSchema.deleteOne({ email });
+
+
+    try {
+      await sendConfirmationEmail(email);
+      console.log("email sent successful");
+
+      return res.status(200).json({ message: "Approval email is been send to the person" });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+exports.rejectUserController = async(req,res)=>{
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToApprove = await verifyUserSchema.findOne({ email });
+    if (!userToApprove) {
+      return res.status(404).json({ message: "User not found in pending verification" });
+    }
+    
+   
+    await verifyUserSchema.deleteOne({ email });
+
+
+    try {
+      await sendRejectionEmail(email);
+      console.log("email sent successful");
+
+      return res.status(200).json({ message: "Rejection email had been send to the person" });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      return res.status(500).json({ message: "Error sending email." });
+    }
+
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
 
 // Login Controller
@@ -104,7 +179,6 @@ exports.loginController = async (req, res) => {
       return res.status(500).json({ message: "Internal Server Error" });
     }
   };
-
 
   exports.sendOtpController = async (req, res) => {
     try {
@@ -161,7 +235,6 @@ exports.loginController = async (req, res) => {
     }
   };
 
-
   exports.verifyOtpController = async(req,res)=>{
 
     const{otp , email}= req.body;
@@ -196,6 +269,7 @@ exports.loginController = async (req, res) => {
 
   }
 
+
   exports.updatePasswordController = async(req,res)=>{
 
     const {email ,newPassword} = req.body;
@@ -228,30 +302,3 @@ exports.loginController = async (req, res) => {
 
 
 
-
-
-
-
-//   try {
-//     const templatePath = path.join(__dirname, "..", "emailTemplate", "emailTemp.html");
-//     const data = await fs.promises.readFile(templatePath, "utf8");
-
-//     const customizedTemplate = data
-//         .replace("{{email}}", email)
-//         .replace("{{acceptUrl}}", `http://example.com/accept?user=${encodeURIComponent(email)}`)
-//         .replace("{{rejectUrl}}", `http://example.com/reject?user=${encodeURIComponent(email)}`);
-
-//     const mailOptions = {
-//         from: process.env.email,
-//         to: email,
-//         subject: "Permission for a new user wants to register",
-//         html: customizedTemplate,
-//     };
-
-//     const info = await transporter.sendMail(mailOptions);
-//     console.log("Email sent:", info.response);
-//     return res.status(200).json({ message: "Verification email sent." });
-// } catch (error) {
-//     console.error("Error sending email:", error);
-//     return res.status(500).json({ message: "Error sending email." });
-// }

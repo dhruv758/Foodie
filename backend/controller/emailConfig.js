@@ -51,7 +51,7 @@ async function sendOTPEmail(email, otp) {
 
           // Create email options
           const mailOptions = {
-            from:"keshavlohiyabusiness@gmail.com",
+            from:process.env.email,
             to: process.env.authEmail,
             subject: "Permission for a new user wants to register",
             html: customizedTemplate,
@@ -72,8 +72,90 @@ async function sendOTPEmail(email, otp) {
 
   }
 
+  async function sendConfirmationEmail(email) {
 
+    const templatePath = path.join(__dirname, '..', 'emailTemplate', 'confirmationMail.html');
+    console.log(templatePath)
+    let emailTemplate;
+
+    try {
+      emailTemplate = await fs.readFile(templatePath, "utf8");
+    } catch (err) {
+      console.error("Error reading email template:", err);
+      return res.status(500).json({ message: "Error reading email template" });
+    }
+
+
+    // Replace placeholders in email template
+    const customizedTemplate = emailTemplate.replace("{{email}}", email);
+
+
+      // Create email options
+      const mailOptions = {
+        from:process.env.email,
+        to: email,
+        subject: "Permission for a new user wants to register",
+        html: customizedTemplate,
+      };
+
+
+      // Send email before saving user
+      try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Email sent:", info.response);
+
+        return ;
+
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        throw new Error(`Error sending authority email: ${error.message}`);
+      }
+
+}
   
-  module.exports = { sendOTPEmail , sendAuthorityEmail };
+
+async function sendRejectionEmail(email) {
+
+  const templatePath = path.join(__dirname, '..', 'emailTemplate', 'RejectMail.html');
+  console.log(templatePath)
+  let emailTemplate;
+
+  try {
+    emailTemplate = await fs.readFile(templatePath, "utf8");
+  } catch (err) {
+    console.error("Error reading email template:", err);
+    return res.status(500).json({ message: "Error reading email template" });
+  }
+
+
+  // Replace placeholders in email template
+  const customizedTemplate = emailTemplate.replace("{{email}}", email);
+
+
+    // Create email options
+    const mailOptions = {
+      from:process.env.email,
+      to: email,
+      subject: "Permission for a new user wants to register",
+      html: customizedTemplate,
+    };
+
+
+    // Send email before saving user
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent:", info.response);
+
+      return ;
+
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      throw new Error(`Error sending authority email: ${error.message}`);
+    }
+
+}
+
+
+  module.exports = { sendOTPEmail , sendAuthorityEmail  , sendConfirmationEmail , sendRejectionEmail};
 
 

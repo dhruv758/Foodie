@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const EmailApproval = () => {
+const EmailReject = () => {
 
     const [searchParams] = useSearchParams();
     const email = searchParams.get("user"); // Extract email from URL query params
@@ -9,7 +9,38 @@ const EmailApproval = () => {
        
     console.log("Extracted Email:", decodedEmail);
 
+
+    const handle =async (email) => {
+            try {
+                console.log(email);
+                const response = await fetch("http://localhost:3000/registration-rejected", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ email}),
+                });
+            
+                if (!response.ok) {
+                  throw new Error("Network response was not ok");
+                }
+            
+                const data = await response.json();
+                console.log("Search request successful in zomato api:", data);
     
+              } catch (error) {
+                console.error("There was an error during the search request:", error);
+                throw error; // Re-throw to handle error at call site
+              }
+        }
+    
+    
+    
+    useEffect(()=>{
+        handle(decodedEmail);
+    },[]) 
+
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -23,4 +54,4 @@ const EmailApproval = () => {
   );
 };
 
-export default EmailApproval;
+export default EmailReject;
