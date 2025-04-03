@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>New User Registration Request</title>
+  <style>
+    /* Basic email styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border: 1px solid #dddddd;
+    }
+    .header img {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+    }
+    .content {
+      margin: 20px 0;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .buttons a {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 10px 20px;
+      text-decoration: none;
+      color: #ffffff;
+      border-radius: 5px;
+    }
+    .accept {
+      background-color: #28a745;
+    }
+    .reject {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <!-- Inline header image. Make sure to attach the image with a matching cid if using inline attachments. -->
+      <img src="https://res.cloudinary.com/dlaiholzj/image/upload/v1721295291/Screenshot_2024-07-18_at_10.55.48_AM-removebg-preview_sx1lkg.png" alt="Header Image">
+    </div>
+    <div class="content">
+      <p>A new user wants to register. The email id is "<strong>{{email}}</strong>".</p>
+    </div>
+    <div class="buttons">
+      <a href="{{acceptUrl}}" class="accept">Accept</a>
+      <a href="{{rejectUrl}}" class="reject">Reject</a>
+    </div>
+  </div>
+</body>
+</html>
