@@ -1,3 +1,4 @@
+// src/components/FoodCard.jsx
 import React from 'react';
 import addButton from '../../assets/add-button.png';
 import shoppingBasket from '../../assets/shopping-basket.png';
