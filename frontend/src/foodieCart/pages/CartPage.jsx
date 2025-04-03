@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CartHeader from '../components/CartHeader';
 import CartItemList from '../components/CartItemList';
 import CartFooter from '../components/CartFooter';
 import Header from '../../SearchResPage/components/Header';
 import { Link } from 'react-router-dom';
 
-const CartPage = ({ cartItems, setCartItems }) => {
+const CartPage = ({ cartItems, setCartItems, onClose }) => {
   const incrementQuantity = (id) => {
     setCartItems(cartItems.map(item => 
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -22,14 +22,25 @@ const CartPage = ({ cartItems, setCartItems }) => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
+  
   return (
-    <div className="max-w-screen-xl mx-auto p-4">
-      <Header cartCount={cartItems.length} />
-      <div className="w-full bg-white rounded-lg shadow-lg p-4 flex flex-col min-h-[682px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div className="max-w-screen-xl w-full mx-4 bg-white rounded-lg shadow-lg p-4 flex flex-col min-h-[682px] max-h-[90vh] overflow-y-auto">
+        <button 
+          className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+          onClick={onClose}
+        >
+          ✕
+        </button>
+        <Header cartCount={cartItems.length} />
         {cartItems.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <p className="text-gray-600 text-lg mb-4">Your cart is empty</p>
-            <Link to="/search" className="bg-green-500 text-white px-4 py-2 rounded-lg">
+            <p className="text-gray-600 text-2xl mb-4">Your cart is empty</p>
+            <Link 
+              to="/search" 
+              className="bg-green-500 text-white px-4 py-2 rounded-lg"
+              onClick={onClose} // Close cart when navigating
+            >
               Browse Items
             </Link>
           </div>

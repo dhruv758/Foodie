@@ -57,6 +57,11 @@ const SearchResPage = () => {
 
   return (
     <div className="max-w-screen-xl mx-auto p-4">
+      <div
+        className={`max-w-screen-xl mx-auto p-4 transition-all duration-300 ${
+          isCartOpen ? 'blur-sm' : ''
+        }`}
+      >
       <Header 
         cartCount={cartItems.length} 
         onCartClick={() => setIsCartOpen(true)}
@@ -87,7 +92,7 @@ const SearchResPage = () => {
           <p className="text-xl text-gray-600">No foods found. Try a different search.</p>
         </div>
       )}
-
+      </div>
       {isCartOpen && (
         <CartPopup 
           cartItems={cartItems} 

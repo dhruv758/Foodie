@@ -4,6 +4,7 @@ import CartItemList from './CartItemList';
 import CartFooter from './CartFooter';
 
 const CartPopup = ({ cartItems, setCartItems, onClose }) => {
+  // Functions to handle cart operations
   const incrementQuantity = (id) => {
     setCartItems(cartItems.map(item => 
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -20,9 +21,21 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
+  // Add useEffect to handle body scroll locking
+  React.useEffect(() => {
+    // Prevent scrolling on mount
+    document.body.style.overflow = 'hidden';
+    
+    // Re-enable scrolling on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="w-[773px] max-h-[682px] bg-white rounded-lg shadow-lg p-4 flex flex-col relative">
+    
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="w-[773px] max-h-[648px] bg-white rounded-lg shadow-lg p-4 flex flex-col relative">
         <button 
           onClick={onClose}
           className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
@@ -34,7 +47,7 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
 
         {cartItems.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-600 text-lg">Your cart is empty</p>
+            <p className="text-gray-600 text-2xl">Your cart is empty</p>
           </div>
         ) : (
           <>

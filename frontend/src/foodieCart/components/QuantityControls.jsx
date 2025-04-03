@@ -6,7 +6,7 @@ const QuantityControls = ({ quantity, onIncrement, onDecrement, onRemove, delete
       <div className="flex h-8 border border-gray-200 rounded-md overflow-hidden">
         <button
           onClick={onDecrement}
-          className="h-full w-8 bg-red-500 text-white border-none hover:bg-red-600"
+          className="h-full w-8 bg-[#DF3454] text-white border-none hover:bg-red-600"
         >
           -
         </button>
@@ -15,7 +15,7 @@ const QuantityControls = ({ quantity, onIncrement, onDecrement, onRemove, delete
         </div>
         <button
           onClick={onIncrement}
-          className="h-full w-8 bg-green-500 text-white border-none hover:bg-green-600"
+          className="h-full w-8 bg-[#1ac073] text-white border-none hover:bg-green-600"
         >
           +
         </button>
