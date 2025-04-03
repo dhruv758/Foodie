@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../../CssStyle/ForgotPassword.css";
 import SetEmail from "./setEmail"
 import NewPassword from "./NewPassword";
 import VerifyOtp from "./verifyOtp";
