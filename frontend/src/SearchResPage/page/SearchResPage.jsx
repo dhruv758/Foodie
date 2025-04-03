@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import { SectionHeader, FoodTypeSelector } from '../components/SectionHeader';
 import FoodCard from '../components/FoodCart';
