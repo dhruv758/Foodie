@@ -78,19 +78,19 @@ const FoodSelection = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-8">What's on your mind?</h2>
+      <h2 className="text-3xl font-semibold text-center mb-8">What's on your mind?</h2>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {foodItems.map((food) => (
           <div onClick={()=>(handleItemClick(food.name))} key={food.id} className="flex flex-col items-center">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden mb-2">
+            <div className="w-24 h-24 md:w-40 md:h-40 rounded-full overflow-hidden mb-2">
               <img 
                 src={food.image || "../assets/pizza.png"} 
                 alt={food.alt} 
                 className="w-full h-full object-cover cursor-pointer"
               />
             </div>
-            <p className="text-gray-600 text-center">{food.name}</p>
+            <p className="text-gray-600 text-center text-lg">{food.name}</p>
           </div>
         ))}
       </div>
