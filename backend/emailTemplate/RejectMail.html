@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Rejected</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #dc3545;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Unfortunately, Your Account Request Has Been Rejected ❌</h2>
+        <p>Dear <strong>{{email}}</strong>,</p>
+        <p>We regret to inform you that your request for an account has been reviewed and rejected by the administrator.</p>
+        <p>If you believe this was a mistake or have any concerns, please contact our support team for further assistance.</p>
+
+        <p class="footer">We apologize for any inconvenience caused.</p>
+        <p class="footer">&copy; 2025 Your Company Name. All rights reserved.</p>
+    </div>
+</body>
+</html>

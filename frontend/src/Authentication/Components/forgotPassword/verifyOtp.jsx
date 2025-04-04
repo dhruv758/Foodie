@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../CssStyle/CheckEmail.css";
+
 
 export default function VerifyOtp({email , onForgotButtonClick}) {
   const [otp, setOtp] = useState("");
@@ -64,29 +64,29 @@ const handleSubmit = async(e) => {
 
 
   return (
-    <div className="check-email-container">
+    <div className="flex flex-col items-center gap-4">
       {/* Check Email text */}
-      <h2 className="check-email-title">Check Your Mail</h2>
+      <h2 className="text-2xl font-semibold">Check Your Mail</h2>
 
-      <p className="check-email-subtitle">
+      <p className="text-lg">
         We sent a reset link to your {email}
       </p>
 
-      <form onSubmit={handleSubmit} className="check-email-form">
+      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
         {/* OTP input */}
-        <div className="otp-container">
+        <div className="w-80">
           <input
             type="text"
             placeholder="OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="otp-input"
+            className="w-full h-10 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ac073] focus:border-transparent"
             required
           />
         </div>
 
         {/* Confirm Code button */}
-        <button type="submit" className="primary-button">
+        <button type="submit" className="w-full cursor-pointer h-10 bg-[#1ac073] text-white rounded-lg hover:bg-[#1ac073]/90">
           Confirm Code
         </button>
     </form>
@@ -95,7 +95,7 @@ const handleSubmit = async(e) => {
         <button
           type="button"
           onClick={handleResendOtpClick}
-          className="resend-code-button"
+          className="text-[#1ac073] cursor-pointer"
         >
           Resend Confirmation Code
         </button>
