@@ -5,6 +5,7 @@ import Login from "./Authentication/Components/Login";
 import ForgotPassword from "./Authentication/Components/forgotPassword/ForgotPassword";
 import HomePage from "./HomePage/page/HomePage";
 import SearchResPage from "./SearchResPage/page/SearchResPage";
+import PollPage from "./PollPage/page/PollPage";
 
 import EmailApproval from "./emailReply/AcceptEmail";
 import EmailReject from "./emailReply/RejectEmail";
@@ -29,6 +30,8 @@ function App() {
         <Route path="/approve-reject" element={<EmailReject />} />
 
         <Route path="/userinfo" element={<UserInfo/>}/>
+        <Route path="/polls" element={<PollPage />} />
+        
 
 
       </Routes>

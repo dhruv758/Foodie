@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 
 
-@custom-variant dark (&:is(.dark *));
+/* @custom-variant dark (&:is(.dark *)); */
 
 @theme{
   --font-urban:'Urbanist', sans-serif;
@@ -12,7 +12,7 @@
 body{
   @apply font-urban;
 }
-
+/* 
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -127,5 +127,5 @@ body{
   body {
     @apply bg-background text-foreground;
   }
-}
+} */
 
