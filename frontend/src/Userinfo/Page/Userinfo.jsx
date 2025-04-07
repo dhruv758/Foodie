@@ -1,6 +1,5 @@
 import { useState } from "react";
-// import Navbar from "./components/Navbar";
-import Header from "../../SearchResPage/components/Header";
+import Header from "../../HomePage/components/HomeNavbar";
 import DishList from "../components/DishList";
 import DishDetails from "../components/DishDetails";
 import EmployeeCountDisplay from "../components/EmployeeCountDisplay";

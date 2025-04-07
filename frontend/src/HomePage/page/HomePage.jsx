@@ -3,30 +3,9 @@ import React, { useState } from "react";
 import HomeNavbar from "../components/HomeNavbar";
 import chef from "../../assets/chef.png";
 import FoodSelection from "../components/FoodSelection";
-import { useNavigate } from "react-router-dom";
-import { searchDish } from "../api/zomatoApi";
-import { useCart } from "../../foodieCart/Context/CartContext"; 
+
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const [searchInput, setSearchInput] = useState("");
-  const { cartItems, addToCart } = useCart();
-
-  const handleSearchClick = async (e) => {
-    e.preventDefault();
-    const data = await searchDish(searchInput);
-    navigate("/search", { state: { data } });
-  };
-
-  const addSampleItemToCart = () => {
-    const sampleItem = {
-      id: "1",
-      name: "Sample Dish",
-      restaurant: "Sample Restaurant",
-      image: "../../assets/noodle.png",
-    };
-    addToCart(sampleItem);
-  };
 
   return (
     <>
@@ -35,21 +14,7 @@ const HomePage = () => {
         <div className="bg-[#1AC073] partition py-6 rounded-bl-4xl rounded-br-4xl flex items-center justify-around">
           <div className="paragraph">
             <h1 className="text-4xl font-medium pb-4">Let's Order Some Food</h1>
-            <form onSubmit={handleSearchClick} className="search w-[620px] h-[68px]">
-              <input
-                onChange={(e) => setSearchInput(e.target.value)}
-                value={searchInput}
-                type="text"
-                placeholder="Search for dish"
-                className="bg-[#ecf0e9] outline-none text-xl pl-6 w-[440px] h-[68px] rounded-tl-xl rounded-bl-xl"
-              />
-              <button
-                type="submit"
-                className="text-white bg-[#f3ba00] w-[180px] h-[68px] text-xl rounded-tr-xl rounded-br-xl cursor-pointer"
-              >
-                Search
-              </button>
-            </form>
+            
             
           </div>
           <div className="image">

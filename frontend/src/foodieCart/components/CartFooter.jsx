@@ -1,44 +1,84 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Button } from '@/foodieCart/ui/button'; // Adjust path
 
 const CartFooter = () => {
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
+  const handleStartTimeChange = (date) => {
+    setStartTime(date);
+    if (endTime && date && endTime <= date) {
+      setEndTime(null);
+    }
+  };
+
+  const handleEndTimeChange = (date) => {
+    if (!startTime || (date && startTime && date > startTime)) {
+      setEndTime(date);
+    }
+  };
+
+  const getMinEndTime = () => {
+    if (!startTime) return undefined;
+    const nextTime = new Date(startTime);
+    nextTime.setMinutes(nextTime.getMinutes() + 15);
+    return nextTime;
+  };
+
   return (
     <div className="flex justify-between items-center p-4">
-      <button className="bg-yellow-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold">
-        Initiate Poll
-      </button>
-
-      <div className="relative ml-70">
+      <div className="relative">
         <DatePicker
           selected={startTime}
-          onChange={(date) => setStartTime(date)}
+          onChange={handleStartTimeChange}
           showTimeSelect
           showTimeSelectOnly
           timeIntervals={15}
           timeCaption="Start Time"
           dateFormat="h:mm aa"
           popperPlacement="top"
-          customInput={<button className="border border-gray-400 text-gray-600 px-4 py-2 rounded-lg">{startTime ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : "Start Time"}</button>}
+          customInput={
+            <Button variant="outline" className="text-gray-600">
+              {startTime 
+                ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) 
+                : "Start Time"}
+            </Button>
+          }
         />
       </div>
 
-      <div className="relative">
+      <div className="relative mr-70">
         <DatePicker
           selected={endTime}
-          onChange={(date) => setEndTime(date)}
+          onChange={handleEndTimeChange}
           showTimeSelect
           showTimeSelectOnly
           timeIntervals={15}
           timeCaption="End Time"
           dateFormat="h:mm aa"
           popperPlacement="top"
-          customInput={<button className="border border-gray-400 text-gray-600 px-4 py-2 rounded-lg">{endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) : "End Time"}</button>}
+          minTime={getMinEndTime()}
+          maxTime={new Date().setHours(23, 59, 59, 999)}
+          disabled={!startTime}
+          customInput={
+            <Button 
+              variant="outline" 
+              className={`${!startTime ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600'}`}
+              disabled={!startTime}
+            >
+              {endTime 
+                ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) 
+                : "End Time"}
+            </Button>
+          }
         />
       </div>
+
+      <Button className="bg-yellow-500 hover:bg-amber-600 text-white">
+        Initiate Poll
+      </Button>
     </div>
   );
 };

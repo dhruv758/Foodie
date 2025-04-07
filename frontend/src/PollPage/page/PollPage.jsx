@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "@/SearchResPage/components/Header";
+import Header from "@/HomePage/components/HomeNavbar";
 import addPoll from "../../assets/add-poll.svg";
 import { useState, useEffect } from "react";
 import { Plus, Trash2, MessageCircle } from "lucide-react";
@@ -77,8 +77,8 @@ function PollPage() {
 
   return (
     <>
+    <Header />
       <div className="max-w-screen-xl mx-auto p-4">
-        <Header />
         <div className="max-w-screen-xl mx-auto p-5">
           <div className="heading flex justify-between">
             <h1 className="text-2xl font-semibold">Polls</h1>
