@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { DateTimePicker } from "@/components/datetimepicker";
 
 function PollPage() {
   // Default state values
@@ -38,7 +39,8 @@ function PollPage() {
   const [selectedDays, setSelectedDays] = useState(defaultState.selectedDays);
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
+  const [endDateandTime,setEndDateandTime] = useState(new Date());
+  const [startDateandTime,setStartDateandTime] = useState(new Date());
   // Reset state when dialog is closed
   useEffect(() => {
     if (!open) {
@@ -249,12 +251,20 @@ function PollPage() {
                             <h4 className="text-sm text-gray-500 mb-2">
                               Start
                             </h4>
-                            <Input type="time" placeholder="Start Time" />
+                            <DateTimePicker 
+                          className="w-full bg-white"
+                            value={startDateandTime}
+                            onChange={(date) => setStartDateandTime(date)}
+                          />
                           </div>
                         )}
                         <div>
                           <h4 className="text-sm text-gray-500 mb-2">End</h4>
-                          <Input type="time" placeholder="End Time" />
+                          <DateTimePicker 
+                          className="w-full bg-white"
+                            value={endDateandTime}
+                            onChange={(date) => setEndDateandTime(date)}
+                          />
                         </div>
                       </div>
                     </div>
