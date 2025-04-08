@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@/foodieCart/ui/button'; // Adjust path based on your setup
+import { Button } from '@/components/ui/button'; 
 import CartHeader from './CartHeader';
 import CartItemList from './CartItemList';
 import CartFooter from './CartFooter';

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Button } from '@/foodieCart/ui/button'; // Adjust path
+import { Button } from '@/components/ui/button'; // Adjust path
 
 const CartFooter = () => {
-  const [startTime, setStartTime] = useState(null);
+  const [startTime, setStartTime] = useState(new Date()); // Set default to current time
   const [endTime, setEndTime] = useState(null);
 
   const handleStartTimeChange = (date) => {
@@ -60,7 +60,7 @@ const CartFooter = () => {
           dateFormat="h:mm aa"
           popperPlacement="top"
           minTime={getMinEndTime()}
-          maxTime={new Date().setHours(23, 59, 59, 999)}
+          maxTime={new Date(new Date().setHours(23, 59, 59, 999))}
           disabled={!startTime}
           customInput={
             <Button 
