@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@/foodieCart/ui/button'; // Adjust path
+import { Button } from '@/components/ui/button'; // Adjust path
 
 const QuantityControls = ({ quantity, onIncrement, onDecrement, onRemove, deleteImage }) => {
   return (

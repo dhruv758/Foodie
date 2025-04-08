@@ -1,3 +1,4 @@
+// src/components/PollPage.jsx
 import React from "react";
 import Header from "@/HomePage/components/HomeNavbar";
 import addPoll from "../../assets/add-poll.svg";
@@ -13,6 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+
+// Import the new FoodPollSection component
+import FoodPollSection from "./FoodPollSection";
 
 function PollPage() {
   // Default state values
@@ -79,6 +83,7 @@ function PollPage() {
     <>
     <Header />
       <div className="max-w-screen-xl mx-auto p-4">
+        
         <div className="max-w-screen-xl mx-auto p-5">
           <div className="heading flex justify-between">
             <h1 className="text-2xl font-semibold">Polls</h1>
@@ -327,6 +332,9 @@ function PollPage() {
               </DialogContent>
             </Dialog>
           </div>
+
+          {/* Include the FoodPollSection component here */}
+          <FoodPollSection />
         </div>
       </div>
     </>

@@ -14,6 +14,7 @@ const SearchResPage = () => {
   const { cartItems, addToCart, setCartItems } = useCart();
 
   useEffect(() => {
+    // console.log(apiData);
     if (apiData && Array.isArray(apiData)) {
       const transformedFoods = apiData.map((item, index) => {
         const restaurant = item?.item || {};
