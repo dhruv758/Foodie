@@ -59,7 +59,7 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
                 onRemove={removeItem}
               />
             </div>
-            <CartFooter />
+            <CartFooter cartItems={cartItems} />
           </>
         )}
       </div>
