@@ -1,5 +1,5 @@
 const express = require("express");
-const { getZomatoData } = require("../controller/zomatoController");
+const { getZomatoData, getSwigyData } = require("../controller/zomatoController");
 const Router = express.Router();
 
 
@@ -7,6 +7,7 @@ const Router = express.Router();
 
 
 Router.post("/api/zomato" , getZomatoData);
+Router.post("/api/swiggy" , getSwigyData);
 
 
 module.exports = Router;
