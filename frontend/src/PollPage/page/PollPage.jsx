@@ -1,3 +1,4 @@
+// src/components/PollPage.jsx
 import React from "react";
 import Header from "@/HomePage/components/HomeNavbar";
 import addPoll from "../../assets/add-poll.svg";
@@ -13,6 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { DateTimePicker } from "@/components/datetimepicker";
+
+// Import the new FoodPollSection component
+// import FoodPollSection from "./FoodPollSection";
 
 function PollPage() {
   // Default state values
@@ -38,7 +43,8 @@ function PollPage() {
   const [selectedDays, setSelectedDays] = useState(defaultState.selectedDays);
 
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
+  const [endDateandTime,setEndDateandTime] = useState(new Date());
+  const [startDateandTime,setStartDateandTime] = useState(new Date());
   // Reset state when dialog is closed
   useEffect(() => {
     if (!open) {
@@ -74,11 +80,34 @@ function PollPage() {
       setSelectedDays([...selectedDays, day]);
     }
   };
+  const sendPollToBackend = async () => {
+    try {
+      const payload = {
+        question,
+        choices,
+        allowMultipleVotes,
+        scheduleType,
+        recurringType,
+        selectedDays,
+        startDate: startDateandTime,
+        endDate: endDateandTime,
+      };
+  
+      const response = await axios.post("http://localhost:4000/api/polls", payload);
+      console.log("Poll created:", response.data);
+      setOpen(false); // Close modal
+    } catch (error) {
+      console.error("Error creating poll:", error);
+      alert("Failed to send poll. Please try again.");
+    }
+  };
+  
 
   return (
     <>
     <Header />
       <div className="max-w-screen-xl mx-auto p-4">
+        
         <div className="max-w-screen-xl mx-auto p-5">
           <div className="heading flex justify-between">
             <h1 className="text-2xl font-semibold">Polls</h1>
@@ -249,12 +278,20 @@ function PollPage() {
                             <h4 className="text-sm text-gray-500 mb-2">
                               Start
                             </h4>
-                            <Input type="time" placeholder="Start Time" />
+                            <DateTimePicker 
+                          className="w-full bg-white"
+                            value={startDateandTime}
+                            onChange={(date) => setStartDateandTime(date)}
+                          />
                           </div>
                         )}
                         <div>
                           <h4 className="text-sm text-gray-500 mb-2">End</h4>
-                          <Input type="time" placeholder="End Time" />
+                          <DateTimePicker 
+                          className="w-full bg-white"
+                            value={endDateandTime}
+                            onChange={(date) => setEndDateandTime(date)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -320,13 +357,20 @@ function PollPage() {
                 </div>
 
                 <div className="mt-4 pt-4 border-t">
-                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600">
-                    Send Poll
-                  </Button>
+                <Button
+  className="w-full bg-emerald-500 hover:bg-emerald-600"
+  onClick={sendPollToBackend}
+>
+  Send Poll
+</Button>
+
                 </div>
               </DialogContent>
             </Dialog>
           </div>
+
+          {/* Include the FoodPollSection component here */}
+          <FoodPollSection />
         </div>
       </div>
     </>

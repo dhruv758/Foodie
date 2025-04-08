@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const { connectDB } = require("./config/db");
 const cors = require('cors');
+const pollRoutes = require('./routes/poll');
+require('./config/agenda');
 
 
 const app = express();
@@ -28,6 +30,7 @@ app.use(cors({
 // //Routes
 app.use(require("./routes/auth"));
 app.use(require("./routes/zomato"));
+app.use('/api/polls', pollRoutes);
 
 
 const PORT = process.env.PORT || 8080;
