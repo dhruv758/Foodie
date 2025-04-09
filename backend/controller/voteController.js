@@ -11,6 +11,18 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
 
     console.log(`Saving vote: ${username} (${user_id}) voted for ${choice} in poll ${poll_id}`);
 
+    const poll_status= await Poll.findOne({ poll_id });
+    if (!poll_status) {
+      console.error(`❌ Poll not found with poll_id: ${poll_id}`);
+      return false;
+    }
+    
+    // Check if poll is still active
+    if (poll_status.status !== 'active') {
+      console.log(`Poll ${poll_id} is ${poll.status}, votes not accepted`);
+      return false;
+    }
+
     const poll = await Poll.findOne({ poll_id });
     if (!poll) {
       console.error(`❌ Poll not found with poll_id: ${poll_id}`);
@@ -127,24 +139,24 @@ exports.viewVoteDetails = async (poll_id) => {
 
 exports.getVoteCounts = async (poll_id) => {
   try {
-    const votes = await Vote.find({ poll_id });
     const poll = await Poll.findOne({ poll_id });
-
     if (!poll) {
       throw new Error(`Poll with ID ${poll_id} not found`);
     }
 
-    // Extract option names
-    const optionNames = poll.options.map(option => option.name);
+    const voteAggregation = await Vote.aggregate([
+      { $match: { poll_id } },
+      { $group: { _id: "$choice", count: { $sum: 1 } } }
+    ]);
 
     const voteCounts = {};
-    optionNames.forEach(option => {
-      voteCounts[option] = 0;
+    poll.options.forEach(option => {
+      voteCounts[option.name] = 0;
     });
 
-    votes.forEach(vote => {
-      if (voteCounts[vote.choice] !== undefined) {
-        voteCounts[vote.choice]++;
+    voteAggregation.forEach(result => {
+      if (voteCounts[result._id] !== undefined) {
+        voteCounts[result._id] = result.count;
       }
     });
 

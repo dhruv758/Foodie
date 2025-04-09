@@ -69,6 +69,7 @@ async function sendPoll(req, res) {
       channel_id: result.channel,
       title: "Food Poll",
       options, 
+      status: 'active',
       created_at: new Date(),
       expires_at: new Date(expires_at)
     });
@@ -98,6 +99,11 @@ async function closePoll(channelId, messageTs, poll_id) {
       ts: messageTs,
       text: finalText
     });
+
+    await Poll.findOneAndUpdate(
+      { poll_id },
+      { status: 'closed' }
+    );
 
     console.log("✅ Poll closed successfully.");
   } catch (error) {

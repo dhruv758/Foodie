@@ -32,7 +32,6 @@ slackApp.action(/vote_.*/, async ({ ack, body }) => {
       await ack();
       console.log("🔹 User data:", body.user);
       
-      // Check if user exists and has an ID
       if (!body.user || !body.user.id) {
         console.error("❌ Missing user information in payload");
         return;
