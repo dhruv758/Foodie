@@ -24,3 +24,26 @@ export const searchDish = async (searchInput) => {
     throw error; // Re-throw to handle error at call site
   }
 };
+
+
+export const getRestauantSwigyData =async()=>{
+
+
+  try {
+    const response = await fetch("http://localhost:3000/api/restauant/swiggy");
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data =await response.json();
+    console.log("Search request successful in zomato:", data);
+    return data; // Return data for further processing
+  } catch (error) {
+    console.error("There was an error during the search request:", error);
+    throw error; // Re-throw to handle error at call site
+  }
+
+
+
+}
