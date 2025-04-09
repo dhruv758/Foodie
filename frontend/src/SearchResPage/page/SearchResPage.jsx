@@ -1,18 +1,25 @@
-
-
 import { useEffect, useState } from "react"
 import Header from "../../HomePage/components/HomeNavbar"
-import { SectionHeader, FoodTypeSelector } from "../components/SectionHeader"
 import FoodCard from "../components/FoodCart"
 import { useLocation } from "react-router-dom"
 import { useCart } from "../../foodieCart/Context/CartContext"
-
+import InfiniteScroll from "react-infinite-scroll-component"
+import CustomFilter from "../components/CustomFilter"
 const SearchResPage = () => {
   const location = useLocation()
   const apiData = location.state?.data || []
   const [foods, setFoods] = useState([])
   const [selectedType, setSelectedType] = useState("")
   const { cartItems, addToCart, setCartItems } = useCart()
+  const [hasMore, setHasMore] = useState(true)
+  const [displayCount, setDisplayCount] = useState(16) // Number of items to show initially
+  
+  // Filter and sort states
+  const [showFilters, setShowFilters] = useState(false)
+  const [minRating, setMinRating] = useState(0)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [sortBy, setSortBy] = useState("default")
+  const [priceRange, setPriceRange] = useState("all")
 
   useEffect(() => {
     if (apiData && Array.isArray(apiData)) {
@@ -37,9 +44,12 @@ const SearchResPage = () => {
 
         // Extract price
         const price = restaurantInfo.costForTwoMessage || "₹200"
+        
+        // Extract price value for sorting
+        const priceValue = parseInt(price.replace(/[^0-9]/g, "")) || 0
 
         const sla = restaurantInfo.sla || {};
-const deliveryTime = sla.slaString || `${sla.minDeliveryTime || 30}-${sla.maxDeliveryTime || 40} MINS`;
+        const deliveryTime = sla.slaString || `${sla.minDeliveryTime || 30}-${sla.maxDeliveryTime || 40} MINS`;
 
         // Extract and combine discount information
         const discountInfo = restaurantInfo.aggregatedDiscountInfoV3 || {};
@@ -64,6 +74,7 @@ const deliveryTime = sla.slaString || `${sla.minDeliveryTime || 30}-${sla.maxDel
           name: restaurantInfo.name || "Unknown Restaurant",
           image: imageUrl,
           price: offerText,
+          priceValue: priceValue, // Add price value for sorting
           type: primaryType,
           rating: Number.parseFloat(rating),
           restaurant: restaurantInfo.name || "Unknown Restaurant",
@@ -76,32 +87,138 @@ const deliveryTime = sla.slaString || `${sla.minDeliveryTime || 30}-${sla.maxDel
     }
   }, [apiData])
 
-  const handleTypeSelect = (type) => {
-    setSelectedType(type)
-  }
+  // Apply filters and sorting
+  const applyFiltersAndSort = () => {
+    let result = [...foods];
+    
+    // Apply type filter
+    if (selectedType) {
+      result = result.filter(food => food.type.toLowerCase() === selectedType.toLowerCase());
+    }
+    
+    // Apply rating filter
+    if (minRating > 0) {
+      result = result.filter(food => food.rating >= minRating);
+    }
+    
+    // Apply price range filter
+    if (priceRange !== "all") {
+      const [min, max] = priceRange.split("-").map(Number);
+      result = result.filter(food => {
+        if (max) {
+          return food.priceValue >= min && food.priceValue <= max;
+        } else {
+          return food.priceValue >= min;
+        }
+      });
+    }
+    
+    // Apply search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(food => 
+        food.name.toLowerCase().includes(query) || 
+        food.type.toLowerCase().includes(query) ||
+        food.area.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+      case "rating-high":
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      case "rating-low":
+        result.sort((a, b) => a.rating - b.rating);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.priceValue - a.priceValue);
+        break;
+      case "price-low":
+        result.sort((a, b) => a.priceValue - b.priceValue);
+        break;
+      case "name-asc":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        // Default sorting (original order)
+        break;
+    }
+    
+    return result;
+  };
 
-  const handlePlusClick = () => {
-    alert("Plus button clicked! Add your functionality here.")
-  }
+  const filteredFoods = applyFiltersAndSort();
 
-  const filteredFoods = selectedType
-    ? foods.filter((food) => food.type.toLowerCase() === selectedType.toLowerCase())
-    : foods
+  // Function to load more items
+  const fetchMoreData = () => {
+    // Simulate loading more data
+    setTimeout(() => {
+      if (displayCount >= filteredFoods.length) {
+        setHasMore(false);
+        return;
+      }
+      
+      // Increase the display count by 8 items
+      setDisplayCount(prevCount => prevCount + 8);
+    }, 500); // Simulate network delay
+  };
+
+  // Get the currently displayed items
+  const displayedFoods = filteredFoods.slice(0, displayCount);
+
+  // Reset filters
+  const resetFilters = () => {
+    setMinRating(0);
+    setPriceRange("all");
+    setSearchQuery("");
+    setSortBy("default");
+    setDisplayCount(16);
+    setHasMore(true);
+  };
 
   return (
     <>
       <Header />
       <div className="max-w-screen-xl mx-auto p-4">
-        <SectionHeader handlePlusClick={handlePlusClick} />
-
         {/* {foods.length > 0 && <FoodTypeSelector selectedType={selectedType} handleTypeSelect={handleTypeSelect} />} */}
-
+        
+        <CustomFilter
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        minRating={minRating}
+        setMinRating={setMinRating}
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        resetFilters={resetFilters}
+        setDisplayCount={setDisplayCount}
+        setHasMore={setHasMore}
+        />
         {foods.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredFoods.map((food) => (
-              <FoodCard key={food.id} food={food} />
-            ))}
-          </div>
+          <InfiniteScroll
+            dataLength={displayedFoods.length}
+            next={fetchMoreData}
+            hasMore={hasMore}
+            loader={<div className="text-center py-4"><p className="text-gray-500">Loading more restaurants...</p></div>}
+            endMessage={
+              <div className="text-center py-4">
+                <p className="text-gray-500">You have seen all restaurants</p>
+              </div>
+            }
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {displayedFoods.map((food) => (
+                <FoodCard key={food.id} food={food} />
+              ))}
+            </div>
+          </InfiniteScroll>
         ) : (
           <div className="text-center py-10">
             <p className="text-xl text-gray-600">No foods found. Try a different search.</p>
