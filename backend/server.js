@@ -28,7 +28,7 @@ app.use(cors({
 
 // //Routes
 app.use(require("./routes/auth"));
-app.use(require("./routes/zomato"));
+app.use(require("./routes/swiggy.js"));
 app.use("/api", pollRoutes);
 
 const PORT = process.env.PORT || 8080;

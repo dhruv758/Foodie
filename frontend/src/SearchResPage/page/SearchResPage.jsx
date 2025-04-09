@@ -94,7 +94,7 @@ const deliveryTime = sla.slaString || `${sla.minDeliveryTime || 30}-${sla.maxDel
       <div className="max-w-screen-xl mx-auto p-4">
         <SectionHeader handlePlusClick={handlePlusClick} />
 
-        {foods.length > 0 && <FoodTypeSelector selectedType={selectedType} handleTypeSelect={handleTypeSelect} />}
+        {/* {foods.length > 0 && <FoodTypeSelector selectedType={selectedType} handleTypeSelect={handleTypeSelect} />} */}
 
         {foods.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
