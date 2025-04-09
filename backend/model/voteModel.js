@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const VoteSchema = new Schema({
   poll_id: {
-    type: String, // Referencing Poll schema
+    type: String, 
     required: true,
-    ref: 'Poll', // Reference to Poll collection
+    ref: 'Poll',
     index: true
   },
   user_id: {
@@ -26,9 +26,8 @@ const VoteSchema = new Schema({
   }
 });
 
-VoteSchema.index({ poll_id: 1, user_id: 1 }); // Compound index
+VoteSchema.index({ poll_id: 1, user_id: 1 });
 
 const Vote = mongoose.model("Vote", VoteSchema);
 
-// ✅ Export it properly
 module.exports = { Vote };
