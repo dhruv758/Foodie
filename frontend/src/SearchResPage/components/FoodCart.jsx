@@ -1,6 +1,13 @@
+import { useNavigate } from "react-router-dom";
+
 const FoodCard = ({ food }) => {
+  const navigate = useNavigate();
+  
+  const handleCardClick = () => {
+    navigate(`/restaurant/${food.id}`);
+  };
   return (
-    <div className="relative border rounded-lg overflow-hidden shadow-lg flex flex-col h-full">
+    <div onClick={handleCardClick} className="relative border rounded-lg overflow-hidden shadow-lg flex flex-col h-full">
       {/* Food Image with Offer Banner */}
       <div className="relative">
         <img src={food.image || "/placeholder.svg"} alt={food.name} className="w-full h-44 object-cover" />

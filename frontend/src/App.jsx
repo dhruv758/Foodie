@@ -12,6 +12,8 @@ import EmailReject from "./emailReply/RejectEmail";
 
 import UserInfo from "./Userinfo/Page/Userinfo";
 
+import RestaurantMenuPage from "./SearchResPage/page/RestaurantMenuPage";
+
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
 
         <Route  path="/home" element={<HomePage/>}/>
         <Route  path="/search" element={<SearchResPage/>}/>
+        <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
 
         <Route path="/approve-accept" element={<EmailApproval />} />
         <Route path="/approve-reject" element={<EmailReject />} />
