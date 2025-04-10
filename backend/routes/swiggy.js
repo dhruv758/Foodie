@@ -9,6 +9,6 @@ const Router = express.Router();
 Router.post("/api/zomato" , getZomatoData);
 Router.post("/api/swiggy" , getSwigyData);
 Router.get("/api/restauant/swiggy" , getSwigyRestaurantData);
-Router.post("/api/swiggy/menu",getSwiggyRestaurantMenu)
+Router.get("/api/swiggy/menu",getSwiggyRestaurantMenu)
 
 module.exports = Router;

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react"
 import Header from "../../HomePage/components/HomeNavbar"
 import FoodCard from "../components/FoodCart"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useCart } from "../../foodieCart/Context/CartContext"
 import InfiniteScroll from "react-infinite-scroll-component"
 import CustomFilter from "../components/CustomFilter"
 const SearchResPage = () => {
   const location = useLocation()
+  const navigate = useNavigate();
   const apiData = location.state?.data || []
   const [foods, setFoods] = useState([])
   const [selectedType, setSelectedType] = useState("")
@@ -86,6 +87,8 @@ const SearchResPage = () => {
       setFoods(transformedFoods)
     }
   }, [apiData])
+
+  
 
   // Apply filters and sorting
   const applyFiltersAndSort = () => {
@@ -215,7 +218,7 @@ const SearchResPage = () => {
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {displayedFoods.map((food) => (
-                <FoodCard key={food.id} food={food} />
+                <FoodCard key={food.id} food={food}  />
               ))}
             </div>
           </InfiniteScroll>
