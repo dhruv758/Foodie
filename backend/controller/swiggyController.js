@@ -126,9 +126,92 @@ exports.getZomatoData = async(req,res)=>{
   };
 
 
+//  const restaurantId = 35270;
+      // const name = "Biryani"
+  // exports.getSeiggyRestaurantMenu = async(req,res)=>{
+  //   try {
+      
+  //     // const {resturantId , name}= req.body;
+  
+  //     // Use the dish variable in your URL if needed.
+  //     // const url = `https://www.swiggy.com/dapi/restaurants/search/v3?lat=28.6280075&lng=77.3607098&str=${encodeURIComponent(dish)}&trackingId=undefined&submitAction=SUGGESTION&queryUniqueId=cf78aefe-a2ab-e933-3267-2e7e32f9ca67&metaData=%7B%22type%22%3A%22DISH%22%2C%22data%22%3A%7B%22vegIdentifier%22%3A%22NA%22%2C%22cloudinaryId%22%3A%22Autosuggest%2FTop%2520200%2520queries%2FPizza.png%22%2C%22dishFamilyId%22%3A%22846647%22%2C%22dishFamilyIds%22%3A%5B%22846647%22%5D%7D%2C%22businessCategory%22%3A%22SWIGGY_FOOD%22%2C%22displayLabel%22%3A%22Dish%22%7D`;
+  //     // const url = "https://www.swiggy.com/dapi/restaurants/list/v5?lat=18.9690247&lng=72.8205292&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+  //     const resturantId = 650301;
+  //     const name = "Rolls"
+  //     const url =`https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.627981&lng=77.3648567&restaurantId=${resturantId}&query=${name}&submitAction=ENTER&source=collection`
+  //     // Make the axios GET request with appropriate headers.
+  //     const response = await axios.get(url, {
+  //       headers: {
+  //         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+  //                       'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+  //                       'Chrome/92.0.4515.131 Safari/537.36'
+  //       }
+  //     });
+      
+  //     const data = response
+  //     console.log("Response data:", data);
+  //     return res.status(200).json(data);
+  //   } catch (error) {
+  //     console.error('Error fetching or processing data:', error.message);
+      
+  //     // If axios error response exists, use its status and message.
+  //     if (error.response) {
+  //       return res.status(error.response.status).json({
+  //         error: error.response.data || 'Error fetching data'
+  //       });
+  //     }
+  //     return res.status(500).json({ error: 'Internal server error' });
+  //   }
+  // }
+  exports.getSwiggyRestaurantMenu = async (req, res) => {
+    try {
+      const { restaurantId, name } = req.query;
+      // const restaurantId = 57451;
+      // const name = "South%20Indian"
+
+      // const restaurantId = 35270;
+      // const name = "Biryani"
+
+      if (!restaurantId ) {
+        return res.status(400).json({ error: 'restaurantId and name are required' });
+      }
+  
+      const url = `https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.6284516&lng=77.37338&restaurantId=${restaurantId}&query=${name}&submitAction=ENTER&source=collection`;
+      // const url = `https://www.swiggy.com/city/noida-1/dominos-pizza-a-block-sector-62-rest137369?restaurant_id=${restaurantId}&source=collection&query=&${name}`
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+                        'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+                        'Chrome/92.0.4515.131 Safari/537.36'
+        }
+      });
+      
+      const data = response.data.data.cards[5].groupedCard.cardGroupMap.REGULAR
+      if(data.cards[1].card.card.title == "Top Picks"){
+        const topPics = data.cards[1].card.card.carousel;
+        const items =  data
+        return res.status(200).json({topPics , items});
+      }else{
+        const items = data.cards
+        return res.status(200).json(items);
+      }
+     
+     
+  
+    } catch (error) {
+      console.error('Error fetching Swiggy menu:', error.message);
+      if (error.response) {
+        return res.status(error.response.status).json({
+          error: error.response.data || 'Error fetching data from Swiggy'
+        });
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  };
 
 
+// https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.6284516&lng=77.37338&restaurantId=137369&query=Pizza&submitAction=ENTER&source=collection
 
-
+  // https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.627981&lng=77.3648567&restaurantId=650301&query=Roll&submitAction=ENTER&source=collection
 
   // https://media-assets.swiggy.com/swiggy/image/upload
