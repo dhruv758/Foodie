@@ -29,6 +29,7 @@ app.use(cors({
 // //Routes
 app.use(require("./routes/auth"));
 app.use(require("./routes/swiggy.js"));
+app.use(require("./routes/pollroutes.js"))
 app.use("/api", pollRoutes);
 
 const PORT = process.env.PORT || 8080;

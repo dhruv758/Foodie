@@ -102,4 +102,19 @@ async function sendPoll(req, res) {
   }
 }
 
-module.exports = {sendPoll};
+
+const getAllPollsController = async (req, res) => {
+  try {
+    console.log("gjhvjh")
+    const polls = await Poll.find({})
+    
+    return res.status(200).json(polls);
+  } catch (error) {
+    console.error("Error fetching polls:", error);
+    
+    // Return an error message with a 500 Internal Server Error status
+    return res.status(500).json({ message: "Error fetching polls", error });
+  }
+};
+
+module.exports = {sendPoll ,getAllPollsController};
