@@ -45,16 +45,15 @@ slackApp.action(/vote_.*/, async ({ ack, body }) => {
       
       console.log("✅ Extracted Action Value:", actionValue);
       
-      const lastUnderscoreIndex = actionValue.lastIndexOf("_");
-      if (lastUnderscoreIndex === -1) {
-        console.error("❌ Invalid action value format:", actionValue);
+      const [poll_id] = actionValue.match(/[a-f0-9\-]{36}$/) || [];
+      if (!poll_id) {
+        console.error("❌ Could not extract poll_id from action value:", actionValue);
         return;
       }
       
-      const choice = actionValue.substring(0, lastUnderscoreIndex);
-      const poll_id = actionValue.substring(lastUnderscoreIndex + 1);
-      const username = body.user.username || body.user.name || `user-${body.user.id}`;
+      const choice = actionValue.replace(`_${poll_id}`, "");
       
+
       console.log(`🔹 Processing vote: ${username} (${body.user.id}) voted for ${choice} in poll ${poll_id}`);
       
       await handleVote(slackApp, body.user.id, username, choice, poll_id);
