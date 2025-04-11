@@ -62,6 +62,7 @@ slackApp.action(/vote_.*/, async ({ ack, body }) => {
       console.error("❌ Error processing vote action:", error);
     }
   });
+
   async function getAllChannels() {
     try {
       const result = await web.conversations.list({ types: "public_channel,private_channel" });

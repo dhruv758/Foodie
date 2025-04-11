@@ -6,8 +6,16 @@ const { v4: uuidv4 } = require("uuid");
 async function sendPoll(req, res) {
   try {
     const poll_id = uuidv4();
-    const { options, expires_at } = req.body;
+    // const { options, expires_at } = req.body;
     // Validation
+    const options = [
+      { name: "Pizza", url: "https://example.com/images/pizza.jpg" },
+      { name: "Sushi", url: "https://example.com/images/sushi.jpg" },
+      { name: "Burger", url: "https://example.com/images/burger.jpg" }
+     ];
+     // :white_check_mark: Expires in 5 minutes
+     const expires_at = new Date(Date.now() + 5 * 60 * 1000);
+     
     if (
       !options ||
       !Array.isArray(options) ||
@@ -120,4 +128,21 @@ async function getPollById(poll_id) {
   }
 }
 
-module.exports = {sendPoll,closePoll,getPollById};
+
+const getAllPollsController = async (req, res) => {
+  try {
+    
+    const polls = await Poll.find({}).sort({ createdAt: -1 }) // Sort in descending order (latest first)
+    .limit(10);
+    
+    return res.status(200).json(polls);
+  } catch (error) {
+    console.error("Error fetching polls:", error);
+    
+    // Return an error message with a 500 Internal Server Error status
+    return res.status(500).json({ message: "Error fetching polls", error });
+  }
+};
+
+
+module.exports = {sendPoll,closePoll,getPollById , getAllPollsController};
