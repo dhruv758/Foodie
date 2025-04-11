@@ -7,21 +7,22 @@ async function sendPoll(req, res) {
   try {
     const poll_id = uuidv4();
 
-    // Get options from request body or use defaults
-    const options = req.body.options || [
-      { name: "Pizza", url: "https://example.com/images/pizza.jpg", vote_count: 0, voters: [] },
-      { name: "Sushi", url: "https://example.com/images/sushi.jpg", vote_count: 0, voters: [] },
-      { name: "Burger", url: "https://example.com/images/burger.jpg", vote_count: 0, voters: [] }
-    ];
+    const { options, expires_at } = req.body;
+
+    // const options = req.body.options || [
+    //   { name: "Pizza", url: "https://example.com/images/pizza.jpg", vote_count: 0, voters: [] },
+    //   { name: "Sushi", url: "https://example.com/images/sushi.jpg", vote_count: 0, voters: [] },
+    //   { name: "Burger", url: "https://example.com/images/burger.jpg", vote_count: 0, voters: [] }
+    // ];
     
-    // Ensure all options have vote_count and voters array initialized
-    options.forEach(option => {
-      option.vote_count = 0;
-      option.voters = [];
-    });
+    // // Ensure all options have vote_count and voters array initialized
+    // options.forEach(option => {
+    //   option.vote_count = 0;
+    //   option.voters = [];
+    // });
 
     const title = req.body.title || "Food Poll";
-    const expires_at = req.body.expires_at ? new Date(req.body.expires_at) : new Date(Date.now() + 5 * 60 * 1000); 
+    // const expires_at = req.body.expires_at ? new Date(req.body.expires_at) : new Date(Date.now() + 5 * 60 * 1000); 
 
     if (
       !options ||
