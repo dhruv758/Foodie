@@ -1,6 +1,4 @@
-  
 const { Poll } = require("../model/pollModel");
-const { Vote } = require("../model/voteModel");
 
 exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
   try {
@@ -8,57 +6,77 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
       console.error("Missing user_id in vote request");
       return false;
     }
-
     console.log(`Saving vote: ${username} (${user_id}) voted for ${choice} in poll ${poll_id}`);
 
-    const poll_status= await Poll.findOne({ poll_id });
-    if (!poll_status) {
-      console.error(`❌ Poll not found with poll_id: ${poll_id}`);
-      return false;
-    }
-    
-    // Check if poll is still active
-    if (poll_status.status !== 'active') {
-      console.log(`Poll ${poll_id} is ${poll.status}, votes not accepted`);
-      return false;
-    }
-
+    // First, find the poll using findOne
     const poll = await Poll.findOne({ poll_id });
     if (!poll) {
       console.error(`❌ Poll not found with poll_id: ${poll_id}`);
       return false;
     }
-    await Vote.findOneAndUpdate(
-      { poll_id, user_id },
-      { username, choice, timestamp: new Date() },
-      { upsert: true, new: true }
-    );
-    // Get updated vote counts
-    const voteCounts = await exports.getVoteCounts(poll_id);
-    const totalVotes = Object.values(voteCounts).reduce((sum, count) => sum + count, 0);
+    if (poll.status !== 'active') {
+      console.log(`Poll ${poll_id} is ${poll.status}, votes not accepted`);
+      return false;
+    }
+    // Find the option that the user is voting for
+    const optionIndex = poll.options.findIndex(opt => opt.name === choice);
+    if (optionIndex === -1) {
+      console.error(`❌ Option ${choice} not found in poll ${poll_id}`);
+      return false;
+    }
 
-    // Extract only option names not the url ;)
-    const optionNames = poll.options.map(option => option.name);
+    const existingVoteIndex = poll.votes.findIndex(vote => vote.user_id === user_id);
+    
+    if (existingVoteIndex !== -1) {
+      const previousChoice = poll.votes[existingVoteIndex].choice;
+      
+      // Update existing vote with new choice and timestamp
+      poll.votes[existingVoteIndex].choice = choice;
+      poll.votes[existingVoteIndex].timestamp = new Date();
+      
+      console.log(`User ${username} changed vote from ${previousChoice} to ${choice}`);
+      
+    } else {
+      // Add new vote
+      poll.votes.push({ 
+        user_id, 
+        username, 
+        choice, 
+        timestamp: new Date() 
+      });
+      console.log(`Added new vote for ${username}`);
+    }
 
-    // Update the Slack message with new counts
+    // Mark the modified paths to ensure they're saved
+    poll.markModified('votes');
+    poll.markModified('options');
+
+    // Save the updated poll
+    await poll.save();
+    console.log(`Poll ${poll_id} saved with updated votes`);
+
+    console.log(`Current votes in poll ${poll_id}:`, JSON.stringify(poll.votes));
+
+    const totalVotes = poll.votes.length;
+
     const blocks = [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `🍽️ *Food Poll! What do you want to eat?*\n\n*Total Votes:* ${totalVotes}`
+          text: `🍽️ *${poll.title}*\n\n*Total Votes:* ${totalVotes}`
         }
       },
       {
         type: "actions",
-        elements: optionNames.map(option => ({
+        elements: poll.options.map(option => ({
           type: "button",
           text: {
             type: "plain_text",
-            text: `${option.replace('_', ' ')} (${voteCounts[option] || 0})`
+            text: `${option.name} (${option.vote_count})`
           },
-          value: `${option}_${poll_id}`,
-          action_id: `vote_${option}`
+          value: `${option.name}_${poll_id}`,
+          action_id: `vote_${option.name}`
         }))
       },
       {
@@ -88,81 +106,7 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
     return true;
   } catch (error) {
     console.error("❌ Error handling vote:", error);
+    console.error(error.stack);
     return false;
-  }
-};
-
-exports.viewVoteDetails = async (poll_id) => {
-  try {
-    const votes = await Vote.find({ poll_id }).lean();
-
-    // Group users by their food choice
-    const votesByChoice = {};
-    votes.forEach(vote => {
-      if (!votesByChoice[vote.choice]) {
-        votesByChoice[vote.choice] = [];
-      }
-      votesByChoice[vote.choice].push(vote.username);
-    });
-
-    const blocks = [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*Vote Details*"
-        }
-      }
-    ];
-
-    Object.entries(votesByChoice).forEach(([choice, users]) => {
-      blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*${choice.replace('_', ' ')}* (${users.length})\n${users.join(', ')}`
-        }
-      });
-    });
-
-    return blocks;
-  } catch (error) {
-    console.error("❌ Error viewing vote details:", error);
-    return [
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: "Error loading vote details" }
-      }
-    ];
-  }
-};
-
-exports.getVoteCounts = async (poll_id) => {
-  try {
-    const poll = await Poll.findOne({ poll_id });
-    if (!poll) {
-      throw new Error(`Poll with ID ${poll_id} not found`);
-    }
-
-    const voteAggregation = await Vote.aggregate([
-      { $match: { poll_id } },
-      { $group: { _id: "$choice", count: { $sum: 1 } } }
-    ]);
-
-    const voteCounts = {};
-    poll.options.forEach(option => {
-      voteCounts[option.name] = 0;
-    });
-
-    voteAggregation.forEach(result => {
-      if (voteCounts[result._id] !== undefined) {
-        voteCounts[result._id] = result.count;
-      }
-    });
-
-    return voteCounts;
-  } catch (error) {
-    console.error(`Error getting vote counts for poll ${poll_id}:`, error);
-    return {};
   }
 };

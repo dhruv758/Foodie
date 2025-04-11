@@ -1,13 +1,11 @@
 const express = require("express");
-
-const { sendPoll, getAllPollsController } = require("../controller/pollController");
-
+const { sendPoll } = require("../controller/pollcontroller");
 
 const Router = express.Router();
 
 Router.post("/poll/start", async (req, res) => {
     try {
-        await sendPoll(req, res); 
+        await sendPoll(req,res);
 
     } catch (error) {
         console.error("❌ Error sending poll:", error);
