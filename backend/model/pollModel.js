@@ -58,20 +58,17 @@ pollSchema.pre('save', function(next) {
   // Reset all option vote counts and voters
   this.options.forEach(option => {
     option.vote_count = 0;
-    option.voters = [];
   });
   
-  // Update option vote counts and voters based on votes array
+  // Update option vote counts based on votes array
   this.votes.forEach(vote => {
     const option = this.options.find(opt => opt.name === vote.choice);
     if (option) {
       option.vote_count += 1;
-      option.voters.push({
-        user_id: vote.user_id,
-        username: vote.username
-      });
     }
   });
+  
+  next();
   
   next();
 });
