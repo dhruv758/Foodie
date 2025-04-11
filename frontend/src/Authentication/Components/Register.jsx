@@ -32,6 +32,56 @@ export default function Register() {
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
+
+  const emailCheck = (email) => {
+    let isValid = true;
+  
+    // Rule 1: No spaces allowed
+    if (/\s/.test(email)) {
+      console.error("❌ Email must not contain spaces.");
+      isValid = false;
+    }
+  
+    // Rule 2: Must start with a letter or digit
+    if (email && !/^[a-zA-Z0-9]/.test(email)) {
+      console.error("❌ Email must start with a letter or digit.");
+      isValid = false;
+    }
+  
+    // Rule 3: Must end with a valid domain
+    const allowedDomains = ['@corevaluetech.com', '@concirus.com'];
+    const isValidDomain = allowedDomains.some((domain) =>
+      email.toLowerCase().endsWith(domain)
+    );
+  
+    if (email && !isValidDomain) {
+      console.error("❌ Email must end with @corevaluetech.com or @concirus.com.");
+      isValid = false;
+    }
+  
+    return isValid;
+  };
+
+  const passwordCheck = (password) => {
+    let isValid = true;
+  
+    // Rule 1: Minimum length of 5
+    if (password.length < 5) {
+      console.error("❌ Password must be at least 5 characters long.");
+      isValid = false;
+    }
+  
+    // Rule 2: No spaces allowed
+    if (/\s/.test(password)) {
+      console.error("❌ Password must not contain spaces.");
+      isValid = false;
+    }
+  
+    return isValid;
+  };
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(
@@ -40,6 +90,13 @@ export default function Register() {
       credential.password,
       credential.confirmPassword
     );
+
+    // if(!emailCheck || !passwordCheck){
+    //     toast.error("Improper cred")
+    //     return
+    // }
+
+
     if (credential.password !== credential.confirmPassword) {
       console.log("Passwords do not match");
       return;
@@ -130,7 +187,7 @@ export default function Register() {
           />
           <button
             type="button"
-            onClick={togglePasswordVisibility}
+            onClick={toggleConfirmPasswordVisibility}
             className="absolute inset-y-0 right-0 flex items-center pr-3"
           >
             {showPassword ? (

@@ -2,7 +2,8 @@ import { getRestauantSwigyData, searchDish } from '../api/zomatoApi';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
-
+import arrowLeft from '../../assets/arrow-left.png'
+import arrowRight from '../../assets/arrow-right.png'
 
 const FoodSelection = () => {
   // Food items data array
@@ -56,10 +57,21 @@ const FoodSelection = () => {
           {/* Icon group on the left */}
           <div className="flex gap-3">
             <button  onClick={handleLeftClick}  className="bg-grey p-2">
-              <FiSearch className="text-gray-500 text-2xl" />
+
+            <img
+                  src={arrowLeft}
+                  alt="Cart"
+                          className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+                />
             </button>
             <button onClick={handleRightClick} className="bg-grey p-2">
-              <FiSearch className="text-gray-500 text-2xl" />
+              {/* <FiSearch className="text-gray-500 text-2xl" /> */}
+              <img
+                  src={arrowRight}
+                  alt="Cart"
+                 className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+                />
+
             </button>
           </div>
         </div>

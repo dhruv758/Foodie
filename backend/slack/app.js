@@ -64,6 +64,7 @@ slackApp.action(/vote_.*/, async ({ ack, body }) => {
 });
 
 async function getAllChannels() {
+
     try {
       const result = await web.conversations.list({ types: "public_channel,private_channel" });
       const channels = result.channels.map(channel => ({ id: channel.id, name: channel.name }));
