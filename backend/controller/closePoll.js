@@ -1,5 +1,5 @@
 const { Poll } = require('../model/pollModel');
-const { slackApp } = require('../slack/app'); // adjust this import as per your project structure
+const { slackApp } = require('../slack/app'); 
 
 async function closePoll(channelId, messageTs, poll_id) {
   try {
