@@ -1,8 +1,8 @@
 require('dotenv').config();
 const { App } = require("@slack/bolt");
 const { WebClient } = require("@slack/web-api");
-const { Poll } = require("../model/pollModel"); // Updated to use Poll model
-const { handleVote, viewVoteDetails } = require("../controller/voteController");
+const { handleVote} = require("../controller/voteController");
+const {viewVoteDetails} = require("../controller/viewVotedetails");
 
 const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -72,38 +72,46 @@ async function getAllChannels() {
       console.error("❌ Error fetching channels:", error);
     }
 }
-
 slackApp.action("view_votes", async ({ ack, body, client }) => {
-    await ack(); // Acknowledge the action
+  await ack();
+
+  try {
+    console.log("📩 Action Body:", JSON.stringify(body, null, 2));
+
+    const poll_id = body.actions[0]?.value;
+    if (!poll_id) throw new Error("Missing poll_id from button value");
+
+    const voteDetailsBlocks = await viewVoteDetails(poll_id);
+
+    await client.views.open({
+      trigger_id: body.trigger_id,
+      view: {
+        type: "modal",
+        title: {
+          type: "plain_text",
+          text: "Poll Results"
+        },
+        blocks: voteDetailsBlocks,
+        close: {
+          type: "plain_text",
+          text: "Close"
+        }
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error handling view_votes action:", error);
 
     try {
-        const poll_id = body.actions[0].value; // Extract poll_id from button value
-    
-        // Fetch poll using poll_id
-        const poll = await Poll.findOne({ poll_id });
-        if (!poll || !poll.votes.length) {
-            await client.chat.postEphemeral({
-                token: process.env.SLACK_BOT_TOKEN,
-                channel: body.channel.id,
-                user: body.user.id,
-                text: "No votes have been cast yet!"
-            });
-            return;
-        }
-
-        // Format votes as a message
-        const voteSummary = poll.votes.map(vote => `*${vote.username}* voted for *${vote.choice}*`).join("\n");
-
-        await client.chat.postEphemeral({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: body.channel.id,
-            user: body.user.id,
-            text: `📊 *Current Votes:*\n${voteSummary}`
-        });
-
-    } catch (error) {
-        console.error("Error handling view_votes action:", error);
+      await client.chat.postEphemeral({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: body.channel.id,
+        user: body.user.id,
+        text: "Could not display vote details. Please try again."
+      });
+    } catch (ephemeralErr) {
+      console.error("⚠️ Failed to send fallback message:", ephemeralErr);
     }
+  }
 });
 
 module.exports = { slackApp };
