@@ -22,14 +22,7 @@ const pollSchema = new mongoose.Schema({
     {
       name: { type: String, required: true },
       url: { type: String, required: true },
-      // Fields to store pre-computed vote data for quick access
       vote_count: { type: Number, default: 0 },
-      // voters: [
-      //   {
-      //     user_id: { type: String, required: true },
-      //     username: { type: String, required: true }
-      //   }
-      // ]
     }
   ],
   votes: [
