@@ -45,7 +45,8 @@ const pollSchema = new mongoose.Schema({
   expires_at: {
     type: Date,
     required: true
-  }
+  },
+  ephemeral_ts: {type: Map, of: String } 
 });
 
 // Pre-save middleware to update option vote counts and voters
@@ -77,5 +78,7 @@ pollSchema.index({ "votes.choice": 1 });
 pollSchema.index({ "options.name": 1 });
 
 const Poll = mongoose.model("Poll", pollSchema);
+// const pollSchema = new mongoose.Schema({ ... }, { versionKey: false });
+
 
 module.exports = { Poll };

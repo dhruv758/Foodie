@@ -61,4 +61,4 @@ async function viewVoteDetails(poll_id) {
   }
 }
 
-module.exports = viewVoteDetails;
+module.exports = {viewVoteDetails};
