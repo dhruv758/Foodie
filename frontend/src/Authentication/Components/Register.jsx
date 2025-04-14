@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { toast, ToastContainer } from "react-toastify";
 
 
 export default function Register() {
@@ -84,25 +85,33 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(
-      "Register with:",
-      credential.email,
-      credential.password,
-      credential.confirmPassword
-    );
 
-    // if(!emailCheck || !passwordCheck){
-    //     toast.error("Improper cred")
-    //     return
-    // }
+
+    if(!emailCheck || !passwordCheck){
+        toast.error("Improper cred")
+        return
+    }
 
 
     if (credential.password !== credential.confirmPassword) {
-      console.log("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
+
+    const check1 = emailCheck(credential.email);
+    const check2 = passwordCheck(credential.password)
+
+    if(!check1 ){
+      toast.error("email is not valid for register")
+      return
+    }
+    if(!check2 ){
+      toast.error("password is not valid for register")
+      return
+    }
+
     try {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch("http://localhost:3000/register-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -121,6 +130,7 @@ export default function Register() {
   };
   return (
     <div className="flex flex-col w-full items-center">
+      <ToastContainer />
       <img src={logo} alt="" className="h-10 w-48 mb-6" />
       {/* Register title */}
       <h2 className="text-2xl font-semibold mb-4">Register</h2>

@@ -26,14 +26,14 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
-
+        <Route path="/approve-accept" element={<EmailApproval />} />
+        <Route path="/approve-reject" element={<EmailReject />} />
         <Route element={<ProtectedRoute />}>
             <Route  path="/home" element={<HomePage/>}/>
             <Route  path="/search" element={<SearchResPage/>}/>
             <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
 
-            <Route path="/approve-accept" element={<EmailApproval />} />
-            <Route path="/approve-reject" element={<EmailReject />} />
+            
 
             <Route path="/userinfo" element={<UserInfo/>}/>
             <Route path="/polls" element={<PollPage />} />
