@@ -1,38 +1,37 @@
 import React from 'react';
-import QuantityControls from './QuantityControls';
-import deleteIcon from '../../assets/delete-icon.png';
-import foodImage from '../../assets/noodle.png';
+// import { Badge } from '@/components/ui/badge';
+import { useCart } from '../context/CartContext';
+import deleteIcon from '../../assets/delete-icon.png'; 
 
-const CartItem = ({ item, onIncrement, onDecrement, onRemove }) => {
+const CartItem = ({ item }) => {
+  const { removeFromCart } = useCart();
+
   return (
-    <div className="w-full border border-gray-200 rounded-lg overflow-hidden">
-      <div className="flex items-center p-4 h-[100px]">
-        <div 
-          className="mr-4 overflow-hidden rounded relative"
-          style={{ width: '80px', height: '82.29px' }}
-        >
-          <img
-            src={item.image || foodImage}
-            alt={item.name}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center mb-1">
-            <h3 className="font-semibold text-lg">{item.name}</h3>
-          </div>
-          <p className="text-gray-600 text-sm">By {item.restaurant}</p>
-        </div>
-
-        <QuantityControls
-          quantity={item.quantity}
-          onIncrement={onIncrement}
-          onDecrement={onDecrement}
-          onRemove={onRemove}
-          deleteImage={deleteIcon}
+    <div className="flex items-center justify-between border rounded-xl p-4 shadow-sm">
+      <div className="flex items-center gap-4">
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-16 h-16 object-cover rounded-lg"
         />
+        <div>
+          <h2 className="text-lg font-semibold">{item.name}</h2>
+          <p className="text-sm text-gray-500">{restaurant.name}</p>
+          <div className="flex gap-2 items-center mt-1">
+            {/* <Badge variant={item.isVeg ? 'default' : 'destructive'}>
+              {item.isVeg ? 'Veg' : 'Non-Veg'}
+            </Badge> */}
+            <span className="text-sm font-medium text-green-600">₹{item.price}</span>
+          </div>
+        </div>
       </div>
+      <button onClick={() => removeFromCart(item)}>
+        <img
+          src={deleteIcon}
+          alt="Delete"
+          className="w-5 h-5 hover:opacity-80"
+        />
+      </button>
     </div>
   );
 };
