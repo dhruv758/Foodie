@@ -143,7 +143,7 @@ exports.getZomatoData = async(req,res)=>{
         return res.status(400).json({ error: 'restaurantId and name are required' });
       }
   
-      const url = `https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.6284516&lng=77.37338&restaurantId=${restaurantId}&query=${name}&submitAction=ENTER&source=collection`;
+      const url = `https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.6284516&lng=77.37338&restaurantId=${restaurantId}&submitAction=ENTER&source=collection`;
       // const url = `https://www.swiggy.com/city/noida-1/dominos-pizza-a-block-sector-62-rest137369?restaurant_id=${restaurantId}&source=collection&query=&${name}`
       const response = await axios.get(url, {
         headers: {
