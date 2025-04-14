@@ -6,6 +6,7 @@ const cors = require('cors');
 const pollRoutes = require("./routes/pollroutes.js");
 
 
+
 const app = express();
 dotenv.config();
 
@@ -38,4 +39,6 @@ app.listen(PORT, () => {
     console.log(`server start at port ${PORT}`);
 });
 
+const { startSlackApp } = require("./slack/app");
+startSlackApp(); // Start Slack bot
 

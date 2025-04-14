@@ -25,7 +25,8 @@ async function startSlackApp() {
       process.exit(1);
     }
 }
-startSlackApp();
+// startSlackApp();
+module.exports = { slackApp, startSlackApp };
 
 function validateVotePayload(body) {
   const userId = body?.user?.id;
