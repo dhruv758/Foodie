@@ -388,3 +388,4 @@ const RestaurantMenuPage = () => {
 
 export default RestaurantMenuPage;
 
+
