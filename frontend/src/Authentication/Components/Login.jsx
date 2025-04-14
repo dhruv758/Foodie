@@ -8,6 +8,7 @@ import {
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hook/context/authContext";
 import logo from "../../assets/logo.png";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export default function Login() {
       });
 
       if (!response.ok) {
+        toast.error("Invalid Credentail")
         throw new Error("Network response was not ok");
       }
 
@@ -77,6 +79,7 @@ export default function Login() {
  
   return (
     <div className="flex flex-col items-center w-full">
+      <ToastContainer />
       <img src={logo} alt="" className="h-10 w-48 mb-6" />
       {/* Welcome text */}
       <h2 className="text-2xl font-semibold mb-8">Welcome</h2>
