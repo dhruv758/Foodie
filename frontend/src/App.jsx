@@ -13,6 +13,8 @@ import EmailReject from "./emailReply/RejectEmail";
 import UserInfo from "./Userinfo/Page/Userinfo";
 
 import RestaurantMenuPage from "./SearchResPage/page/RestaurantMenuPage";
+import ProtectedRoute from "./components/protectedRoute";
+import DefaultComponent from "./components/defaultComponent";
 
 
 function App() {
@@ -25,17 +27,18 @@ function App() {
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
-        <Route  path="/home" element={<HomePage/>}/>
-        <Route  path="/search" element={<SearchResPage/>}/>
-        <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
+        <Route element={<ProtectedRoute />}>
+            <Route  path="/home" element={<HomePage/>}/>
+            <Route  path="/search" element={<SearchResPage/>}/>
+            <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
 
-        <Route path="/approve-accept" element={<EmailApproval />} />
-        <Route path="/approve-reject" element={<EmailReject />} />
+            <Route path="/approve-accept" element={<EmailApproval />} />
+            <Route path="/approve-reject" element={<EmailReject />} />
 
-        <Route path="/userinfo" element={<UserInfo/>}/>
-        <Route path="/polls" element={<PollPage />} />
-        
-
+            <Route path="/userinfo" element={<UserInfo/>}/>
+            <Route path="/polls" element={<PollPage />} />
+          </Route>
+        <Route path="*" element={<DefaultComponent/>}/>
 
       </Routes>
     </>

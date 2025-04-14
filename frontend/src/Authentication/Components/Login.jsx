@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -14,6 +14,16 @@ export default function Login() {
   const { login } = useAuth();
   const [credential, setCredential] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+
+  useEffect(()=>{
+    const isAuthenticated = localStorage.getItem('auth');
+    
+    if(isAuthenticated){
+      navigate("/home")
+    }
+  },[])
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,13 +70,11 @@ export default function Login() {
     setCredential((prev) => ({ ...prev, password: passwordValue }));
   };
 
-  const onForgotPasswordClick = () => {
-    Navigate("/");
-  };
 
-  const onRegitrationButtonClick = () => {
-    Navigate("/register");
-  };
+
+
+
+ 
   return (
     <div className="flex flex-col items-center w-full">
       <img src={logo} alt="" className="h-10 w-48 mb-6" />
@@ -123,7 +131,6 @@ export default function Login() {
           <NavLink to="/forgot-password">
             <button
               type="button"
-              onClick={onForgotPasswordClick}
               className="text-[#1ac073] cursor-pointer text-sm"
             >
               Forgot Password?

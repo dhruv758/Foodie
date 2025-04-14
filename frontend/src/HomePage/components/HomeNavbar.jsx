@@ -194,11 +194,13 @@ function HomeNavbar() {
         </div>
 
         {/* Profile */}
-        <img
-          src={profileIcon}
-          alt="Profile"
-          className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-        />
+        <button>
+          <img
+            src={profileIcon}
+            alt="Profile"
+            className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+          />  
+        </button>
       </div>
     </nav>
   );
