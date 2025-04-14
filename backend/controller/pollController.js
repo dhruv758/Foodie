@@ -4,6 +4,28 @@ const { v4: uuidv4 } = require("uuid");
 const { closePoll } = require("./closePoll");
 
 
+const getPollSummary = async (req, res) => {
+  try {
+    const poll = await Poll.findById(req.params.pollId);
+    if (!poll) return res.status(404).json({ error: "Poll not found" });
+
+    const summary = {
+      title: poll.title,
+      options: poll.options.map((opt) => ({
+        name: opt.name,
+        url: opt.url,
+        vote_count: opt.vote_count,
+      })),
+    };
+
+    res.json(summary);
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+    res.status(500).json({ error: "Failed to fetch summary" });
+  }
+};
+
+
 const getAllPolls = async (req, res) => {
   try {
     const polls = await Poll.find(); // fetch all polls from DB
@@ -111,4 +133,4 @@ async function sendPoll(req, res) {
   }
 }
 
-module.exports = { sendPoll, getAllPolls, };
+module.exports = { sendPoll, getAllPolls, getPollSummary,};
