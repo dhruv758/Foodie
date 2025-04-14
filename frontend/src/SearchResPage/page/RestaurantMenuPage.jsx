@@ -33,37 +33,40 @@ const RestaurantMenuPage = () => {
         console.log("API response:", response.data);
         
         if (response.data) {
-          // Extract top picks
+          // Initialize arrays for menu items
           const extractedTopPicks = [];
-          if (response.data.topPics && Array.isArray(response.data.topPics)) {
-            // Log the first top pick to see its structure
-            if (response.data.topPics.length > 0) {
-              console.log("First top pick structure:", JSON.stringify(response.data.topPics[0], null, 2));
-            }
+          const extractedItems = [];
+          
+          // Try to extract top picks if they exist
+          if (response.data.topPics && Array.isArray(response.data.topPics) && response.data.topPics.length > 0) {
+            console.log("Found top picks in response");
             
-            // Try different ways to extract the info
             response.data.topPics.forEach(item => {
-              // Check if the item has an info property directly
-              if (item.dish && item.dish.info) {
-                extractedTopPicks.push(item.dish.info);
-              } else if (item.info) {
+              if (item.info) {
                 extractedTopPicks.push(item.info);
+              } 
+              else if (item.dish && item.dish.info) {
+                extractedTopPicks.push(item.dish.info);
+              }
+              else if (item.id && item.name && (item.price || item.defaultPrice || item.finalPrice)) {
+                extractedTopPicks.push(item);
               }
             });
             
             console.log("Extracted top picks:", extractedTopPicks);
             setTopPicks(extractedTopPicks);
+            extractedItems.push(...extractedTopPicks); // Include top picks in all items
+          } else {
+            console.log("No top picks found in response");
           }
           
-          // Extract regular menu items
-          const extractedItems = [...extractedTopPicks]; // Include top picks in search
-          
-          if (response.data.items && response.data.items.cards) {
-            setMenuData(response.data.items.cards);
+          // Handle different response structures for menu items
+          if (Array.isArray(response.data)) {
+            // Case where response is directly an array of cards
+            setMenuData(response.data);
             
             // Process each card to extract menu items
-            response.data.items.cards.forEach(card => {
-              // Check if this card has itemCards
+            response.data.forEach(card => {
               if (card.card?.card?.itemCards) {
                 card.card.card.itemCards.forEach(item => {
                   if (item.card?.info) {
@@ -73,15 +76,38 @@ const RestaurantMenuPage = () => {
               }
             });
             
-            setAllMenuItems(extractedItems);
+            // Try to extract restaurant info if available
+            if (response.data[0]?.card?.card?.info) {
+              setRestaurant(response.data[0].card.card.info);
+            }
+          } 
+          else if (response.data.items && response.data.items.cards) {
+            // Original structure with items.cards
+            setMenuData(response.data.items.cards);
+            
+            // Process each card to extract menu items
+            response.data.items.cards.forEach(card => {
+              if (card.card?.card?.itemCards) {
+                card.card.card.itemCards.forEach(item => {
+                  if (item.card?.info) {
+                    extractedItems.push(item.card.info);
+                  }
+                });
+              }
+            });
             
             // Try to extract restaurant info if available
             if (response.data.items.cards[0]?.card?.card?.info) {
               setRestaurant(response.data.items.cards[0].card.card.info);
             }
-          } else {
+          } 
+          else {
+            console.error("Unexpected response structure:", response.data);
             setError("Menu data structure is not as expected");
           }
+          
+          // Set all menu items for search functionality
+          setAllMenuItems(extractedItems);
         } else {
           setError("Invalid response format");
         }
@@ -107,18 +133,11 @@ const RestaurantMenuPage = () => {
       }
       
       const normalizedQuery = query.toLowerCase().trim();
+      const results = allMenuItems.filter(item => 
+        (item.name && item.name.toLowerCase().includes(normalizedQuery)) ||
+        (item.description && item.description.toLowerCase().includes(normalizedQuery))
+      );
       
-      // Filter items that contain the search query in name or description
-      const results = allMenuItems.filter(item => {
-        if (!item) return false;
-        
-        const nameMatch = item.name && item.name.toLowerCase().includes(normalizedQuery);
-        const descMatch = item.description && item.description.toLowerCase().includes(normalizedQuery);
-        
-        return nameMatch || descMatch;
-      });
-      
-      console.log(`Search for "${normalizedQuery}" found ${results.length} results`);
       setSearchResults(results);
     }, 300), // 300ms debounce time
     [allMenuItems]
@@ -318,7 +337,7 @@ const RestaurantMenuPage = () => {
           </div>
         )}
 
-        {/* Top Picks / Bestseller Section - Only show when not searching */}
+        {/* Top Picks / Bestseller Section - Only show if we have top picks */}
         {!searchQuery && topPicks.length > 0 && (
           <div className="border-b pb-6 mb-8">
             <h3 className="text-lg font-medium mb-4 flex items-center">
@@ -368,3 +387,4 @@ const RestaurantMenuPage = () => {
 };
 
 export default RestaurantMenuPage;
+
