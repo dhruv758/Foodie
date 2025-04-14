@@ -79,6 +79,19 @@ const RestaurantMenuPage = () => {
             // Try to extract restaurant info if available
             if (response.data[0]?.card?.card?.info) {
               setRestaurant(response.data[0].card.card.info);
+              console.log("Restaurant info extracted:", response.data[0].card.card.info);
+            } else if (response.data.restaurant) {
+              setRestaurant(response.data.restaurant);
+              console.log("Restaurant info from direct property:", response.data.restaurant);
+            } else {
+              // Try to extract restaurant name from URL params as fallback
+              const name = searchParams.get("name");
+              if (name) {
+                setRestaurant({ name: name });
+                console.log("Using restaurant name from URL:", name);
+              } else {
+                console.warn("Could not extract restaurant info from response");
+              }
             }
           } 
           else if (response.data.items && response.data.items.cards) {
@@ -99,11 +112,31 @@ const RestaurantMenuPage = () => {
             // Try to extract restaurant info if available
             if (response.data.items.cards[0]?.card?.card?.info) {
               setRestaurant(response.data.items.cards[0].card.card.info);
+              console.log("Restaurant info from items cards:", response.data.items.cards[0].card.card.info);
+            } else if (response.data.restaurant) {
+              setRestaurant(response.data.restaurant);
+              console.log("Restaurant info from direct property:", response.data.restaurant);
+            } else {
+              // Try to extract restaurant name from URL params as fallback
+              const name = searchParams.get("name");
+              if (name) {
+                setRestaurant({ name: name });
+                console.log("Using restaurant name from URL:", name);
+              } else {
+                console.warn("Could not extract restaurant info from response");
+              }
             }
           } 
           else {
             console.error("Unexpected response structure:", response.data);
             setError("Menu data structure is not as expected");
+            
+            // Still try to set restaurant name from URL as fallback
+            const name = searchParams.get("name");
+            if (name) {
+              setRestaurant({ name: name });
+              console.log("Using restaurant name from URL as fallback:", name);
+            }
           }
           
           // Set all menu items for search functionality
@@ -114,6 +147,13 @@ const RestaurantMenuPage = () => {
       } catch (err) {
         console.error("Error fetching menu items:", err);
         setError(`Failed to load menu items: ${err.message}`);
+        
+        // Try to set restaurant name from URL as fallback even in error case
+        const name = searchParams.get("name");
+        if (name) {
+          setRestaurant({ name: name });
+          console.log("Using restaurant name from URL after error:", name);
+        }
       } finally {
         setLoading(false);
       }
@@ -162,22 +202,41 @@ const RestaurantMenuPage = () => {
   };
 
   // Handle add/remove from cart
-  const handleCartAction = (item) => {
-    const isInCart = isItemInCart(item.id);
+ // Handle add/remove from cart
+const handleCartAction = (item) => {
+  const isInCart = isItemInCart(item.id);
+  
+  // Get restaurant name from URL params as fallback
+  const restaurantNameFromURL = decodeURIComponent(searchParams.get("name") || "");
+  
+  console.log("Restaurant info when adding to cart:", restaurant);
+  console.log("Restaurant name from URL:", restaurantNameFromURL);
+  
+  if (isInCart) {
+    removeFromCart(item.id);
+  } else {
+    // Use the restaurant name in this priority:
+    // 1. From restaurant object if available
+    // 2. From URL parameter
+    // 3. Fallback to "Restaurant"
+    const restaurantName = 
+      (restaurant && restaurant.name) || 
+      restaurantNameFromURL || 
+      "Restaurant";
+      
+    console.log("Using restaurant name:", restaurantName);
     
-    if (isInCart) {
-      removeFromCart(item.id);
-    } else {
-      addToCart({
-        id: item.id,
-        name: item.name,
-        price: item.price / 100 || item.defaultPrice / 100 || item.finalPrice / 100,
-        image: item.imageId ? `https://media-assets.swiggy.com/swiggy/image/upload/${item.imageId}` : null,
-        quantity: 1,
-        restaurant: restaurant?.name || "Restaurant"
-      });
-    }
-  };
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price / 100 || item.defaultPrice / 100 || item.finalPrice / 100,
+      image: item.imageId ? `https://media-assets.swiggy.com/swiggy/image/upload/${item.imageId}` : null,
+      quantity: 1,
+      restaurant: restaurantName
+    });
+  }
+};
+
 
   // Render a menu item card
   const renderMenuItem = (item) => {
@@ -213,7 +272,7 @@ const RestaurantMenuPage = () => {
           <Button 
             variant={isInCart ? "destructive" : "default"}
             size="sm"
-            className={`mt-2 ${isInCart ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}
+            className={`mt-2 cursor-pointer ${isInCart ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}
             onClick={() => handleCartAction(item)}
           >
             {isInCart ? (
@@ -329,63 +388,61 @@ const RestaurantMenuPage = () => {
             </h2>
             {searchResults.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {searchResults.map(item => renderMenuItem(item))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-4">No dishes found matching "{searchQuery}"</p>
-            )}
-          </div>
-        )}
-
-        {/* Top Picks / Bestseller Section - Only show if we have top picks */}
-        {!searchQuery && topPicks.length > 0 && (
-          <div className="border-b pb-6 mb-8">
-            <h3 className="text-lg font-medium mb-4 flex items-center">
-              <span className="text-yellow-500 mr-2">★</span> Bestseller
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {topPicks.map(item => renderMenuItem(item))}
+              {searchResults.map(item => renderMenuItem(item))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-500 text-center py-4">No dishes found matching "{searchQuery}"</p>
+          )}
+        </div>
+      )}
 
-        {/* Menu Categories (only show when not searching) */}
-        {!searchQuery && (
-          <div className="space-y-8">
-            {menuData.map((categoryCard, index) => {
-              // Skip if this is not an item category
-              if (!categoryCard.card?.card) return null;
-              
-              const cardData = categoryCard.card.card;
-              
-              // Check if this is a category with items
-              const categoryItems = cardData.itemCards || [];
-              const categoryTitle = cardData.title;
-              
-              if (!categoryTitle || categoryItems.length === 0) return null;
-              
-              return (
-                <div key={index} className="border-b pb-6">
-                  <h3 className="text-lg font-medium mb-4">{categoryTitle}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {categoryItems.map((item, itemIndex) => {
-                      // Extract the dish info from the nested structure
-                      const itemInfo = item?.card?.info;
-                      if (!itemInfo) return null;
-                      
-                      return renderMenuItem(itemInfo);
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+      {/* Top Picks / Bestseller Section - Only show if we have top picks */}
+      {!searchQuery && topPicks.length > 0 && (
+        <div className="border-b pb-6 mb-8">
+          <h3 className="text-lg font-medium mb-4 flex items-center">
+            <span className="text-yellow-500 mr-2">★</span> Bestseller
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {topPicks.map(item => renderMenuItem(item))}
           </div>
-        )}
-      </div>
-    </>
-  );
+        </div>
+      )}
+
+      {/* Menu Categories (only show when not searching) */}
+      {!searchQuery && (
+        <div className="space-y-8">
+          {menuData.map((categoryCard, index) => {
+            // Skip if this is not an item category
+            if (!categoryCard.card?.card) return null;
+            
+            const cardData = categoryCard.card.card;
+            
+            // Check if this is a category with items
+            const categoryItems = cardData.itemCards || [];
+            const categoryTitle = cardData.title;
+            
+            if (!categoryTitle || categoryItems.length === 0) return null;
+            
+            return (
+              <div key={index} className="border-b pb-6">
+                <h3 className="text-lg font-medium mb-4">{categoryTitle}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {categoryItems.map((item, itemIndex) => {
+                    // Extract the dish info from the nested structure
+                    const itemInfo = item?.card?.info;
+                    if (!itemInfo) return null;
+                    
+                    return renderMenuItem(itemInfo);
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </>
+);
 };
 
 export default RestaurantMenuPage;
-
-
