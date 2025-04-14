@@ -46,7 +46,8 @@ const FoodSelection = () => {
 
   const handleItemClick = async(name) => {
     const data = await searchDish(name);
-    navigate("/search", { state: { data } });
+    const formattedText = name.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/search?name=${formattedText}`, { state: { data } });
   };
 
   return (

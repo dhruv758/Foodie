@@ -1,10 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const FoodCard = ({ food }) => {
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate();
   
   const handleCardClick = () => {
-    navigate(`/restaurant/${food.id}`);
+    // navigate(`/restaurant/${food.id}`);
+    const name  = searchParams.get('name')
+    navigate(`/restaurant/${food.id}?name=${name}`);
+
   };
   return (
     <div onClick={handleCardClick} className="relative border rounded-lg overflow-hidden shadow-lg flex flex-col h-full">

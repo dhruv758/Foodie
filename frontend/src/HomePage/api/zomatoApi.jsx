@@ -1,6 +1,6 @@
 export const searchDish = async (searchInput) => {
 
-    const formattedText = searchInput.toLowerCase().replace(/\s+/g, '-');
+    const formattedText = searchInput.toLowerCase().replace(/\s+/g, '+');
   
     // const url = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.6280075&lng=77.3607098&collection=83633&tags=layout_CCS_${convertInputIntoLowercase}&sortBy=&filters=&type=rcv2&offset=0&page_type=null`
   try {

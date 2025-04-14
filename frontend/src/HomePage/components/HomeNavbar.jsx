@@ -26,7 +26,8 @@ function HomeNavbar() {
     e.preventDefault();
     if (!searchInput.trim()) return;
     const data = await searchDish(searchInput);
-    navigate("/search", { state: { data } });
+    const formattedText = searchInput.toLowerCase().replace(/\s+/g, '-');   
+    navigate(`/search?name=${formattedText}`, { state: { data } });
   };
 
   // Add new address

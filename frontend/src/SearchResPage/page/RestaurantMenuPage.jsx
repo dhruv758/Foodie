@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import Header from "../../HomePage/components/HomeNavbar";
 import axios from "axios";
 import { useCart } from "../../foodieCart/Context/CartContext";
@@ -8,6 +8,7 @@ import { PlusCircle, MinusCircle } from "lucide-react";
 import { Search } from "lucide-react"; // Import the Search icon
 
 const RestaurantMenuPage = () => {
+  const [searchParams] = useSearchParams();
   const { restaurantId } = useParams();
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,9 +22,9 @@ const RestaurantMenuPage = () => {
       try {
         setLoading(true);
         console.log("Fetching menu for restaurant ID:", restaurantId);
-        
+        const name = searchParams.get("name");
         // Get the menu items from your backend API
-        const response = await axios.get(`http://localhost:3000/api/swiggy/menu?restaurantId=${restaurantId}`);
+        const response = await axios.get(`http://localhost:3000/api/swiggy/menu?restaurantId=${restaurantId}&name=${name}`);
         console.log("API response:", response.data);
         
         if (response.data) {
