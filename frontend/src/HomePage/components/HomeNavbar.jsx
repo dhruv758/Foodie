@@ -72,7 +72,7 @@ function HomeNavbar() {
     <nav className="flex items-center justify-between px-12 py-4 bg-white border-b border-gray-200">
       {/* Left Section */}
       <div className="flex items-center gap-6">
-        <img src={logo} className="w-36 h-10 object-contain" alt="Logo" />
+        <img src={logo} className="w-42 h-10 object-contain" alt="Logo" />
 
         {/* Location Dropdown */}
         <div
@@ -81,8 +81,8 @@ function HomeNavbar() {
           onMouseLeave={handleMouseLeave}
         >
           <div className="flex items-center gap-2 cursor-pointer">
-            <img src={locationIcon} alt="Location" className="w-8 h-8" />
-            <span className="text-xl font-semibold">
+            <img src={locationIcon} alt="Location" className="w-6 h-6" />
+            <span className="text-lg font-semibold">
               {truncateAddress(currentAddress)}
             </span>
           </div>
@@ -132,7 +132,7 @@ function HomeNavbar() {
       </div>
 
       {/* Center Section - Navigation */}
-      <div className="flex items-center gap-8">
+      <div className="flex justify-between gap-10">
         <NavLink
           to="/home"
           className={({ isActive }) =>
@@ -156,25 +156,21 @@ function HomeNavbar() {
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearchClick} className="flex-1 max-w-[700px] mx-6 relative">
+      <form onSubmit={handleSearchClick} className="flex-1 max-w-[500px] mx-6 relative">
         <div className="relative">
-          {!searchInput && (
-            <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-2xl" />
-          )}
+          <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl" />
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             type="text"
             placeholder="Search for food"
-            className={`w-full h-12 bg-gray-100 text-xl rounded-full outline-none transition-all ${
-              searchInput ? 'pl-6' : 'pl-12'
-            }`}
+            className="w-full h-10 bg-gray-100 text-lg font-medium rounded-full pl-12 outline-none transition-all"
           />
         </div>
       </form>
 
       {/* Right Section */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-12">
         {/* Cart */}
         <div className="relative">
           <img
