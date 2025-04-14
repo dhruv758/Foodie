@@ -3,27 +3,23 @@ const { Poll } = require("../model/pollModel");
 const { v4: uuidv4 } = require("uuid");
 const { closePoll } = require("./closePoll");
 
+
+const getAllPolls = async (req, res) => {
+  try {
+    const polls = await Poll.find(); // fetch all polls from DB
+    res.status(200).json(polls);
+  } catch (error) {
+    console.error(":x: Error fetching polls:", error);
+    res.status(500).json({ error: "Failed to fetch polls" });
+  }
+};
+
 async function sendPoll(req, res) {
   try {
     const poll_id = uuidv4();
+    const { options, expires_at: expiresAtRaw, title, channel_id } = req.body;
 
-    const { options, expires_at } = req.body;
-
-    // const options = req.body.options || [
-    //   { name: "Pizza", url: "https://example.com/images/pizza.jpg", vote_count: 0, voters: [] },
-    //   { name: "Sushi", url: "https://example.com/images/sushi.jpg", vote_count: 0, voters: [] },
-    //   { name: "Burger", url: "https://example.com/images/burger.jpg", vote_count: 0, voters: [] }
-    // ];
-    
-    // // Ensure all options have vote_count and voters array initialized
-    // options.forEach(option => {
-    //   option.vote_count = 0;
-    //   option.voters = [];
-    // });
-
-    const title = req.body.title || "Food Poll";
-    // const expires_at = req.body.expires_at ? new Date(req.body.expires_at) : new Date(Date.now() + 5 * 60 * 1000); 
-
+    // Validate and format options
     if (
       !options ||
       !Array.isArray(options) ||
@@ -33,12 +29,21 @@ async function sendPoll(req, res) {
       return res.status(400).json({ error: "Options must include both name and url." });
     }
 
+    // Parse expires_at to Date object
+    const expires_at = new Date(expiresAtRaw);
+    if (isNaN(expires_at.getTime())) {
+      return res.status(400).json({ error: "Invalid expires_at format." });
+    }
+
+    const formattedTitle = title || "Food Poll";
+
+    // Build Slack poll blocks
     const blocks = [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `🍽️ *${title}*\n\nTotal Votes: 0`
+          text: `:knife_fork_plate: *${formattedTitle}*\n\nTotal Votes: 0`
         }
       },
       {
@@ -60,7 +65,7 @@ async function sendPoll(req, res) {
             type: "button",
             text: {
               type: "plain_text",
-              text: "📊 View Votes"
+              text: ":bar_chart: View Votes"
             },
             value: poll_id,
             action_id: "view_votes"
@@ -69,10 +74,11 @@ async function sendPoll(req, res) {
       }
     ];
 
+    // Send message to Slack
     const result = await slackApp.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: req.body.channel_id || process.env.SLACK_CHANNEL,
-      text: `🍽️ *${title}* Vote for your favorite!`,
+      channel: channel_id || process.env.SLACK_CHANNEL,
+      text: `:knife_fork_plate: *${formattedTitle}* Vote for your favorite!`,
       blocks
     });
 
@@ -80,41 +86,29 @@ async function sendPoll(req, res) {
       throw new Error("Failed to send poll to Slack.");
     }
 
+    // Save poll to MongoDB
     await Poll.create({
       poll_id,
       message_ts: result.ts,
       channel_id: result.channel,
-      title: title,
+      title: formattedTitle,
       options,
       votes: [],
       status: "active",
       created_at: new Date(),
-      expires_at: expires_at
+      expires_at
     });
 
+    // Schedule automatic poll close
     const delay = expires_at.getTime() - Date.now();
     setTimeout(() => closePoll(result.channel, result.ts, poll_id), delay);
 
     res.status(200).json({ message: "Poll sent successfully!", poll_id });
+
   } catch (error) {
-    console.error("❌ Error sending poll:", error);
+    console.error(":x: Error sending poll:", error);
     res.status(500).json({ error: "Error sending poll" });
   }
 }
 
-
-const getAllPollsController = async (req, res) => {
-  try {
-    console.log("gjhvjh")
-    const polls = await Poll.find({})
-    
-    return res.status(200).json(polls);
-  } catch (error) {
-    console.error("Error fetching polls:", error);
-    
-    // Return an error message with a 500 Internal Server Error status
-    return res.status(500).json({ message: "Error fetching polls", error });
-  }
-};
-
-module.exports = {sendPoll ,getAllPollsController};
+module.exports = { sendPoll, getAllPolls, };
