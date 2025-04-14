@@ -3,11 +3,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from '@/components/ui/button';
 
-const CartFooter = ({ cartItems }) => {
+const CartFooter = ({ cartItems, onPollInitiated }) => {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
-  const [statusType, setStatusType] = useState(null); // "success" or "error"
+  const [statusType, setStatusType] = useState(null);
 
   const handleStartTimeChange = (date) => {
     setStartTime(date);
@@ -39,22 +39,17 @@ const CartFooter = ({ cartItems }) => {
       }, 5000);
       return;
     }
-  
-    
+
     const pollData = {
       options: cartItems.map(item => ({
         name: item.name,
-        url: item.url || `https://yourdomain.com/food/${item.id}` 
+        url: item.url || `https://yourdomain.com/food/${item.id}`
       })),
-      expires_at: endTime.toISOString() 
+      expires_at: new Date(endTime).toISOString()  // ✅ fixed here
     };
 
-    console.log("Sending poll data:", pollData);
-    
     try {
       const apiUrl = "http://localhost:3000/api/poll/start";
-      console.log("Sending request to:", apiUrl);
-      
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
@@ -64,30 +59,36 @@ const CartFooter = ({ cartItems }) => {
         mode: 'cors',
         credentials: 'include'
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `Server responded with status ${response.status}`);
       }
-  
+
       const result = await response.json();
       console.log("✅ Poll started:", result);
-  
+
       setStatusType("success");
       setStatusMessage(`✅ Poll started successfully!`);
-      // setStatusMessage(`✅ Poll started successfully! Poll ID: ${result.poll_id}`);
+
+      setTimeout(() => {
+        setStatusMessage(null);
+        setStatusType(null);
+        if (typeof onPollInitiated === "function") {
+          onPollInitiated();
+        }
+      }, 1500);
+
     } catch (error) {
       console.error("❌ Failed to send poll:", error);
       setStatusType("error");
-     
+      setStatusMessage("❌ Failed to start poll.");
+      setTimeout(() => {
+        setStatusMessage(null);
+        setStatusType(null);
+      }, 5000);
     }
-  
-    setTimeout(() => {
-      setStatusMessage(null);
-      setStatusType(null);
-    }, 5000);
   };
-  
 
   return (
     <div className="flex flex-col items-start gap-2 p-4">
@@ -147,7 +148,6 @@ const CartFooter = ({ cartItems }) => {
         </Button>
       </div>
 
-      {/* Feedback message */}
       {statusMessage && (
         <div className={`text-sm ${statusType === 'success' ? 'text-green-600' : 'text-red-600'}`}>
           {statusMessage}
@@ -158,5 +158,3 @@ const CartFooter = ({ cartItems }) => {
 };
 
 export default CartFooter;
-
-
