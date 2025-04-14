@@ -8,26 +8,13 @@ async function closePoll(channelId, messageTs, poll_id) {
       console.error(`Poll not found: ${poll_id}`);
       return;
     }
-    const resultText = poll.options
-      .map(option => `${option.name}: ${option.vote_count}`)
-      .join("\n");
+    if (poll.status === "closed") return;
 
-    const finalText = `🚫 *Poll Closed!* Voting is no longer available.\n\n${resultText}`;
-
-    await slackApp.client.chat.update({
+    // Send a new message to notify poll closure
+    await slackApp.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: channelId,
-      ts: messageTs,
-      text: finalText,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: finalText
-          }
-        }
-      ]
+      text: `🚫 *Poll Closed!* Voting is no longer available.\nContact Mahima if you missed the poll.`
     });
 
     await Poll.findOneAndUpdate(
