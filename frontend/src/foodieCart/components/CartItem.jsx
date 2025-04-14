@@ -5,6 +5,8 @@ import deleteIcon from '../../assets/delete-icon.png';
 
 const CartItem = ({ item }) => {
   const { removeFromCart } = useCart();
+  
+  console.log("Cart item restaurant:", item.restaurant);
 
   return (
     <div className="flex items-center justify-between border rounded-xl p-4 shadow-sm">
@@ -16,7 +18,7 @@ const CartItem = ({ item }) => {
         />
         <div>
           <h2 className="text-lg font-semibold">{item.name}</h2>
-          <p className="text-sm text-gray-500">{restaurant.name}</p>
+          <p className="text-sm text-gray-500">By {item.restaurant || "Restaurant"}</p>
           <div className="flex gap-2 items-center mt-1">
             {/* <Badge variant={item.isVeg ? 'default' : 'destructive'}>
               {item.isVeg ? 'Veg' : 'Non-Veg'}
@@ -25,7 +27,7 @@ const CartItem = ({ item }) => {
           </div>
         </div>
       </div>
-      <button onClick={() => removeFromCart(item)}>
+      <button onClick={() => removeFromCart(item.id)}>
         <img
           src={deleteIcon}
           alt="Delete"

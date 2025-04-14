@@ -63,14 +63,14 @@ const FoodSelection = () => {
           <div className="flex gap-3">
             <button 
               onClick={() => handleScroll('left')} 
-              className="bg-white p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
+              className="bg-white cursor-pointer p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
               disabled={scrollPosition <= 0}
             >
               <FiChevronLeft className={`text-xl ${scrollPosition <= 0 ? 'text-gray-300' : 'text-gray-700'}`} />
             </button>
             <button 
               onClick={() => handleScroll('right')} 
-              className="bg-white p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
+              className="bg-white cursor-pointer p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
             >
               <FiChevronRight className="text-xl text-gray-700" />
             </button>
