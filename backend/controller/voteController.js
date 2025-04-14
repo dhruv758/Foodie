@@ -1,4 +1,31 @@
-const { Poll } = require("../model/pollModel");
+const { Poll } = require("../model/pollModel.js");
+
+// Updated rate limit handler that informs user + retries
+const handleSlackRateLimit = async (fn, args, slackApp, user_id, channel, context = "action") => {
+  try {
+    return await fn(args);
+  } catch (error) {
+    if (error.data?.error === 'ratelimited' && error.headers?.['retry-after']) {
+      const retryAfter = parseInt(error.headers['retry-after'], 10);
+      console.warn(`⚠️ Slack rate limit hit. Retrying after ${retryAfter} seconds...`);
+
+      // Send ephemeral message to user
+      if (slackApp && user_id && channel) {
+        await slackApp.client.chat.postEphemeral({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel,
+          user: user_id,
+          text: `⚠️ Slack is temporarily busy. Please retry your ${context} after *${retryAfter} seconds*. 🙏`
+        });
+      }
+
+      // Wait and retry
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      return await fn(args);
+    }
+    throw error;
+  }
+};
 
 exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
   try {
@@ -32,10 +59,8 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
     if (existingVote) {
       const prevChoice = existingVote.choice;
 
-      if (prevChoice === choice) {
-        console.log(`ℹ️ ${username} already voted for ${choice}, no change`);
-      } else {
-        // Update the vote's choice and timestamp
+      if (prevChoice !== choice) {
+        // Change vote
         await Poll.updateOne(
           { poll_id, "votes.user_id": user_id },
           {
@@ -55,11 +80,10 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
             ]
           }
         );
-        console.log(`🔄 ${username} changed vote from ${prevChoice} to ${choice}`);
         wasUpdated = true;
       }
     } else {
-      // First time vote
+      // First vote
       await Poll.updateOne(
         { poll_id },
         {
@@ -76,15 +100,12 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
           }
         },
         {
-          arrayFilters: [
-            { "option.name": choice }
-          ]
+          arrayFilters: [{ "option.name": choice }]
         }
       );
-      console.log(`✅ ${username} voted for ${choice}`);
     }
 
-    // Fetch updated poll for UI
+    // Refetch updated poll
     const updatedPoll = await Poll.findOne({ poll_id });
     const totalVotes = updatedPoll.votes.length;
 
@@ -124,42 +145,66 @@ exports.handleVote = async (slackApp, user_id, username, choice, poll_id) => {
       }
     ];
 
-    await slackApp.client.chat.update({
-      token: process.env.SLACK_BOT_TOKEN,
-      channel: updatedPoll.channel_id,
-      ts: updatedPoll.message_ts,
-      blocks: blocks
-    });
-
-    // Ephemeral response
-    if (updatedPoll.ephemeral_ts?.[user_id]) {
-      await slackApp.client.chat.delete({
+    // Slack: update main message
+    await handleSlackRateLimit(
+      slackApp.client.chat.update,
+      {
         token: process.env.SLACK_BOT_TOKEN,
         channel: updatedPoll.channel_id,
-        ts: updatedPoll.ephemeral_ts[user_id]
-      });
+        ts: updatedPoll.message_ts,
+        blocks: blocks
+      },
+      slackApp,
+      user_id,
+      updatedPoll.channel_id,
+      "poll update"
+    );
+
+    // Delete old ephemeral if exists
+    const previousEphemeralTs = updatedPoll.ephemeral_ts?.[user_id];
+    if (previousEphemeralTs) {
+      await handleSlackRateLimit(
+        slackApp.client.chat.delete,
+        {
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: updatedPoll.channel_id,
+          ts: previousEphemeralTs
+        },
+        slackApp,
+        user_id,
+        updatedPoll.channel_id,
+        "delete previous ephemeral message"
+      );
     }
 
+    // Send updated ephemeral message
     const responseText = wasUpdated
       ? `🔄 You changed your vote to *${choice}*.`
       : `✅ You voted for *${choice}*. Thanks for participating! 🎉`;
 
-    const ephemeralMessage = await slackApp.client.chat.postEphemeral({
-      token: process.env.SLACK_BOT_TOKEN,
-      channel: updatedPoll.channel_id,
-      user: user_id,
-      text: responseText
-    });
+    const { message_ts } = await handleSlackRateLimit(
+      slackApp.client.chat.postEphemeral,
+      {
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: updatedPoll.channel_id,
+        user: user_id,
+        text: responseText
+      },
+      slackApp,
+      user_id,
+      updatedPoll.channel_id,
+      "ephemeral vote response"
+    );
 
-    const ephemeral_ts = updatedPoll.ephemeral_ts || {};
-    ephemeral_ts[user_id] = ephemeralMessage.ts;
-
-    await Poll.updateOne({ poll_id }, { $set: { ephemeral_ts } });
+    // Store new ephemeral timestamp
+    await Poll.updateOne(
+      { poll_id },
+      { $set: { [`ephemeral_ts.${user_id}`]: message_ts } }
+    );
 
     return true;
   } catch (error) {
     console.error("❌ Error handling vote:", error);
-    console.error(error.stack);
     return false;
   }
 };

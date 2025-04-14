@@ -2,7 +2,7 @@ require('dotenv').config();
 const { App } = require("@slack/bolt");
 const { WebClient } = require("@slack/web-api");
 const { handleVote} = require("../controller/voteController");
-const {viewVoteDetails} = require("../controller/viewVotedetails");
+const { Poll } = require("../model/pollModel");
 
 const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -34,7 +34,7 @@ function validateVotePayload(body) {
     console.error("❌ actionValue is undefined!");
     return;
   }
-  console.log("✅ Extracted Action Value:", actionValue);
+  // console.log("✅ Extracted Action Value:", actionValue);
   if (!userId || !actionValue) return { valid: false };
   
   const lastUnderscore = actionValue.lastIndexOf("_");
@@ -72,74 +72,100 @@ async function getAllChannels() {
       console.error("❌ Error fetching channels:", error);
     }
 }
+
+const LOADING_VIEW = {
+  type: "modal",
+  title: {
+    type: "plain_text",
+    text: "Poll Results"
+  },
+  close: {
+    type: "plain_text",
+    text: "Close"
+  },
+  blocks: [
+    {
+      type: "section",
+      text: {
+        type: "plain_text",
+        text: "Loading vote details..."
+      }
+    }
+  ]
+};
+
 slackApp.action("view_votes", async ({ ack, body, client }) => {
   await ack();
-
-  await client.views.open({
-    trigger_id: body.trigger_id,
-    view: {
-      type: "modal",
-      title: {
-        type: "plain_text",
-        text: "Test Modal"
-      },
-      close: {
-        type: "plain_text",
-        text: "Close"
-      },
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "This is a test modal."
-          }
-        }
-      ]
+  
+  try {
+    const poll_id = body.actions[0]?.value;
+    if (!poll_id) return;
+    
+    const modalResponse = await client.views.open({
+      trigger_id: body.trigger_id,
+      view: LOADING_VIEW
+    });
+    
+    const poll = await Poll.findOne({ poll_id });
+    if (!poll) throw new Error(`Poll not found: ${poll_id}`);
+    
+    await client.views.update({
+      view_id: modalResponse.view.id,
+      view: {
+        type: "modal",
+        title: {
+          type: "plain_text",
+          text: "Poll Results"
+        },
+        close: {
+          type: "plain_text",
+          text: "Close"
+        },
+        blocks: generateVoteBlocks(poll)
+      }
+    });
+  } catch (error) {
+    console.error("Error in view_votes:", error.message);
+    // Send fallback error message only if we can identify the user and channel
+    if (body.user?.id && (body.channel?.id || body.channel_id)) {
+      await client.chat.postEphemeral({
+        channel: body.channel?.id || body.channel_id,
+        user: body.user?.id,
+        text: "Could not display vote details. Please try again."
+      });
     }
-  });
+  }
 });
 
-// slackApp.action("view_votes", async ({ ack, body, client }) => {
-//   await ack();
+function generateVoteBlocks(poll) {
+  const blocks = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: `📊 Results`,
+        emoji: true
+      }
+    },
+    { type: "divider" }
+  ];
 
-//   try {
-//     // console.log("📩 Action Body:", JSON.stringify(body, null, 2));
+  for (const option of poll.options) {
+    const votersForOption = poll.votes
+      .filter(vote => vote.choice === option.name)
+      .map(vote => `• <@${vote.user_id}>`);
 
-//     const poll_id = body.actions[0]?.value;
-//     console.log("🔹 Poll ID:", poll_id);
-//     if (!poll_id) throw new Error("Missing poll_id from button value");
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*${option.name}* — *${option.vote_count} votes*\n${
+          votersForOption.length > 0 ? votersForOption.join('\n') : '_No votes yet_'
+        }`
+      }
+    });
+    blocks.push({ type: "divider" });
+  }
 
-//     const voteDetailsBlocks = await viewVoteDetails(poll_id);
-
-//     await client.views.open({
-//       trigger_id: body.trigger_id,
-//       view: {
-//         type: "modal",
-//         title: {
-//           type: "plain_text",
-//           text: "Poll Results"
-//         },
-//         blocks: voteDetailsBlocks,
-//         close: {
-//           type: "plain_text",
-//           text: "Close"
-//         }
-//       }
-//     });
-//   } catch (error) {
-//     console.error("❌ Error handling view_votes action:", error);
-//       try {
-//         await client.chat.postEphemeral({
-//           token: process.env.SLACK_BOT_TOKEN,
-//           channel: body.channel.id,
-//           user: body.user.id,
-//           text: "Could not display vote details. Please try again."
-//         });
-//       } catch (ephemeralErr) {
-//         console.error("⚠️ Failed to send fallback message:", ephemeralErr);
-//       }
-//   }
-// });
-
-module.exports = { slackApp };
+  return blocks;
+}

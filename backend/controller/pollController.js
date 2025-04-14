@@ -15,7 +15,7 @@ function formatTime(date) {
 async function sendPoll(req, res) {
   try {
     const poll_id = uuidv4();
-
+    
     const options = req.body.options || [
       { name: "Pizza", url: "https://example.com/images/pizza.jpg", vote_count: 0, voters: [] },
       { name: "Sushi", url: "https://example.com/images/sushi.jpg", vote_count: 0, voters: [] },
@@ -26,16 +26,13 @@ async function sendPoll(req, res) {
     options.forEach(option => {
       option.vote_count = 0;
     });
-
-    const title = req.body.title || "Food Poll";
-    const durationMinutes = parseInt(req.body.expires_at, 10) || 5;
     const now = new Date();
+    const durationMinutes = parseInt(req.body.expires_at, 10) || 5;
     const expires_at = new Date(now.getTime() + durationMinutes * 60 * 1000);
-
     const formattedTime = formatTime(expires_at);
-    const textMessage = `<!channel> 🍽️ *${title}* Vote for your favorite!\n_Poll will close at *${formattedTime}*_`;
+    const title = req.body.title || `<!channel> 🍽️ Vote for your favorite!\n_Poll will close at *${formattedTime}*_`;
 
-
+    // Validation
     if (
       !options ||
       !Array.isArray(options) ||
@@ -84,9 +81,10 @@ async function sendPoll(req, res) {
     const result = await slackApp.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: req.body.channel_id || process.env.SLACK_CHANNEL,
-      text: textMessage,
+      text: "",
       blocks
     });
+    console.log("Poll sent successfully:", result);
 
     if (!result?.channel || !result?.ts) {
       throw new Error("Failed to send poll to Slack.");
@@ -105,26 +103,40 @@ async function sendPoll(req, res) {
     });
 
     const delay = expires_at.getTime() - now.getTime();
-    setTimeout(() => closePoll(result.channel, result.ts, poll_id), delay);
-    res.status(200).json({ message: "Poll sent successfully!", poll_id });
+    console.log(`Poll will close in: ${delay} ms`);
 
-    const reminder = 15 * 60 * 1000;
+    setTimeout(() => closePoll(result.channel, result.ts, poll_id), delay);
+
+    const reminder = 4 * 60 * 1000;
     const reminderDelay = delay - reminder;
 
     if (reminderDelay > 0) {
+      console.log(`Reminder will be sent in: ${reminderDelay} ms`);
+
       setTimeout(async () => {
-        await slackApp.client.chat.postMessage({
-          token: process.env.SLACK_BOT_TOKEN,
-          channel: result.channel,
-          text: `<!channel> 🕒 Only 15 minutes left, kindly do vote!`
-        });
+        try {
+          const reminderResult = await slackApp.client.chat.postMessage({
+            token: process.env.SLACK_BOT_TOKEN,
+            channel: result.channel,
+            text: `<!channel> 🕒 Only 4 minutes left, kindly do vote!`
+          });
+
+          if (reminderResult?.error) {
+            console.error("Error sending reminder:", reminderResult.error);
+          }
+        } catch (error) {
+          console.error("Error sending reminder message:", error);
+        }
       }, reminderDelay);
     }
+
+    res.status(200).json({ message: "Poll sent successfully!", poll_id });
   } catch (error) {
     console.error("❌ Error sending poll:", error);
     res.status(500).json({ error: "Error sending poll" });
   }
 }
+
 
 const getAllPollsController = async (req, res) => {
   try {
