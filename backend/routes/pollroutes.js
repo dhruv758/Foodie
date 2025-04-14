@@ -1,7 +1,7 @@
 const express = require("express");
-
 const { sendPoll } = require("../controller/pollController");
 const { getAllPolls } = require("../controller/pollController");
+const { getPollSummary } = require("../controller/pollController");
 
 const Router = express.Router();
 
@@ -19,5 +19,6 @@ Router.post("/poll/start", async (req, res) => {
 
 // Router.get('/all-polls',getAllPollsController)
 Router.get("/poll/all", getAllPolls);
+Router.get("/poll/summary/:pollId", getPollSummary);
 
 module.exports = Router;
