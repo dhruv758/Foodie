@@ -12,6 +12,9 @@ const SummaryPage = () => {
         const fetchSummary = async () => {
             try {
                 const res = await fetch(`http://localhost:3000/api/poll/summary/${pollId}`);
+                if (!res.ok) {
+                    throw new Error('Failed to fetch summary');
+                }
                 const data = await res.json();
                 setSummary(data);
             } catch (err) {

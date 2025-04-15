@@ -133,4 +133,45 @@ async function sendPoll(req, res) {
   }
 }
 
-module.exports = { sendPoll, getAllPolls, getPollSummary,};
+// Updated getVotersByDish function to use findById instead of findOne({ poll_id })
+const getVotersByDish = async (req, res) => {
+  try {
+    const { pollId } = req.params;
+
+    if (!pollId) {
+      return res.status(400).json({ error: "Poll ID is required" });
+    }
+
+    // Changed from findOne({poll_id: pollId}) to findById(pollId)
+    const poll = await Poll.findById(pollId);
+    if (!poll) {
+      return res.status(404).json({ error: "Poll not found" });
+    }
+
+    const votersByDish = {};
+    poll.options.forEach(option => {
+      votersByDish[option.name] = {
+        id: option.name,
+        name: option.name,
+        users: []
+      };
+    });
+
+    poll.votes.forEach(vote => {
+      if (votersByDish[vote.choice]) {
+        votersByDish[vote.choice].users.push({
+          user_id: vote.user_id,
+          username: vote.username,
+          timestamp: vote.timestamp
+        });
+      }
+    });
+
+    res.status(200).json(Object.values(votersByDish));
+  } catch (error) {
+    console.error("Error getting voters by dish:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { sendPoll, getAllPolls, getPollSummary, getVotersByDish };
