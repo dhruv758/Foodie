@@ -9,7 +9,7 @@ import PollPage from "./PollPage/page/PollPage";
 
 import EmailApproval from "./emailReply/AcceptEmail";
 import EmailReject from "./emailReply/RejectEmail";
-
+import SummaryPage from "./Summary/SummaryPage";
 import UserInfo from "./Userinfo/Page/Userinfo";
 
 import RestaurantMenuPage from "./SearchResPage/page/RestaurantMenuPage";
@@ -33,9 +33,8 @@ function App() {
             <Route  path="/search" element={<SearchResPage/>}/>
             <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
 
-            
-
-            <Route path="/userinfo" element={<UserInfo/>}/>
+            <Route path="/summary/:pollId" element={<SummaryPage />} />
+            <Route path="/poll/:pollId/users" element={<UserInfo />} />
             <Route path="/polls" element={<PollPage />} />
           </Route>
         <Route path="*" element={<DefaultComponent/>}/>
