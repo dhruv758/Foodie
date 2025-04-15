@@ -17,14 +17,12 @@ function UserInfo() {
     const fetchVoterData = async () => {
       try {
         setLoading(true);
-        // Updated API endpoint to match the route in pollroutes.js
         const response = await fetch(`http://localhost:3000/api/poll/${pollId}/voters`);
         if (!response.ok) {
           throw new Error('Failed to fetch voter data');
         }
         const data = await response.json();
         
-        // Format data for components
         const formattedDishes = data.map(dish => ({
           id: dish.id,
           name: dish.name,
@@ -34,7 +32,6 @@ function UserInfo() {
         setDishes(formattedDishes);
         setLoading(false);
         
-        // Select first dish by default if available
         if (formattedDishes.length > 0 && !selectedDish) {
           setSelectedDish(formattedDishes[0].id);
         }
@@ -100,31 +97,34 @@ function UserInfo() {
     <div className="min-h-screen bg-gray-50">
       <Header/>
 
-      <div className="mb-4 mt-4 text-center">
-        <h1 className="text-2xl font-bold text-[#178226]">User Voting Information</h1>
-      </div>
-      <div>
-        <DishList dishes={dishes} selectedDish={selectedDish} setSelectedDish={setSelectedDish} />
-      </div>
-
-      {selectedDishData && (
-        <div className="flex flex-col sm:flex-row justify-center items-center sm:items-start gap-4 mt-6">
-          <div className="w-full sm:w-auto sm:max-w-md mx-auto order-1 sm:order-none">
-            <EmployeeCountDisplay 
-              dishes={dishes}
-              selectedUsers={selectedUsers} 
-            />
-          </div>
-
-          <div className="w-full sm:w-auto sm:max-w-md mx-auto order-2 sm:order-none">
-            <DishDetails 
-              selectedDishData={selectedDishData} 
-              onSelectionChange={handleSelectionChange}
-              selectedUsers={selectedUsers}
-            />
-          </div>
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold text-black">User Voting Information</h1>
         </div>
-      )}
+        
+        <div className="mb-8">
+          <DishList dishes={dishes} selectedDish={selectedDish} setSelectedDish={setSelectedDish} />
+        </div>
+
+        {selectedDishData && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-1">
+              <EmployeeCountDisplay 
+                dishes={dishes}
+                selectedUsers={selectedUsers} 
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <DishDetails 
+                selectedDishData={selectedDishData} 
+                onSelectionChange={handleSelectionChange}
+                selectedUsers={selectedUsers}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
