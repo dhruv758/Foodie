@@ -30,7 +30,7 @@ const FoodPollSection = () => {
   );
 
   const activePolls = sortedPolls.filter(
-    (p) => p.status === "active" && new Date(p. expires_at) > currentTime
+    (p) => p.status === "active" && new Date(p.expires_at) > currentTime
   );
   const donePolls = sortedPolls.filter(
     (p) => new Date(p.expires_at) <= currentTime
@@ -59,9 +59,8 @@ const FoodPollSection = () => {
         onClick={() => status === "closed" && navigate(`/summary/${poll._id}`)}
         className={`rounded-2xl p-4 shadow-lg border ${getCardStyle(
           status
-        )} cursor-pointer`}
+        )} cursor-pointer h-fit`}
       >
-        {/* No icon, just date and time on top right */}
         {/* Date left, Time right */}
         <div className="flex justify-between mb-2">
           <p className="text-l text-gray-800 font-semibold">
@@ -72,7 +71,6 @@ const FoodPollSection = () => {
           </p>
         </div>
 
-
         {/* White inner box */}
         <div className="bg-white rounded-lg px-6 py-5 shadow border border-gray-200">
           <p className="text-black font-medium text-base mb-4">{message}</p>
@@ -80,14 +78,14 @@ const FoodPollSection = () => {
             {poll.options.map((opt, i) => (
               <div
                 key={i}
-                className="flex justify-between items-center border border-green-400 text-black text-base font-medium px-4 py-2 rounded-full"
+                className="flex justify-between items-center border border-gray-400 bg-gray-100 text-black text-base font-medium px-4 py-2 rounded-full h-10 overflow-hidden"
               >
-                <span>
-                  {opt.name.length > 10
-                    ? opt.name.slice(0, 10) + "..."
+                <span className="truncate max-w-[70%]">
+                  {opt.name.length > 6
+                    ? opt.name.slice(0, 6) + "..."
                     : opt.name}
                 </span>
-                <span>{opt.vote_count}</span>
+                <span className="ml-1">{opt.vote_count}</span>
               </div>
             ))}
           </div>
@@ -97,7 +95,7 @@ const FoodPollSection = () => {
   };
 
   return (
-    <div className="flex flex-col gap-12 mt-10 px-4">
+    <div className="flex flex-col gap-12 mt-10 ">
       {/* In Progress Section */}
       <div>
         {activePolls.length > 0 ? (
@@ -106,8 +104,12 @@ const FoodPollSection = () => {
               <Timer className="h-5 w-5 text-[#178226]" />
               <h2 className="text-xl font-bold text-[#178226]">In Progress</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {activePolls.map((poll) => renderPollCard(poll, "active"))}
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8">
+              {activePolls.map((poll) => (
+                <div key={poll._id} className="break-inside-avoid">
+                  {renderPollCard(poll, "active")}
+                </div>
+              ))}
             </div>
           </>
         ) : (
@@ -123,8 +125,12 @@ const FoodPollSection = () => {
               <CheckCheck className="h-5 w-5 text-[#C61B3E]" />
               <h2 className="text-xl font-bold text-[#C61B3E]">Done</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {donePolls.map((poll) => renderPollCard(poll, "closed"))}
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8">
+              {donePolls.map((poll) => (
+                <div key={poll._id} className="break-inside-avoid">
+                  {renderPollCard(poll, "closed")}
+                </div>
+              ))}
             </div>
           </>
         ) : (
@@ -145,5 +151,3 @@ const FoodPollSection = () => {
 };
 
 export default FoodPollSection;
-
-
