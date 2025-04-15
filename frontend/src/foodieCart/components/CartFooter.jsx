@@ -141,7 +141,7 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
         </div>
 
         <Button
-          className="bg-yellow-500 hover:bg-amber-600 text-white"
+          className="bg-[#F3BA00] hover:bg-amber-600 text-white"
           onClick={handleInitiatePoll}
         >
           Initiate Poll

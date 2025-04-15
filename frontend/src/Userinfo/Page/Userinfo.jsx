@@ -1,26 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Header from "../../HomePage/components/HomeNavbar";
 import DishList from "../components/DishList";
 import DishDetails from "../components/DishDetails";
 import EmployeeCountDisplay from "../components/EmployeeCountDisplay";
-// import Header from 
-
-const dishes = [
-  { id: 1, name: "Grilled Salmon", users: ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Williams"] },
-  { id: 2, name: "Vegetarian Pasta", users: ["Emily Brown", "David Wilson", "Lisa Anderson"] },
-  { id: 3, name: "Chicken Curry", users: ["Robert Taylor", "Amanda Martinez", "Chris Lee", "Maria Garcia", "Tom White"] },
-  { id: 4, name: "Beef Tacos", users: ["Nina Clark", "Jason Adams", "Oliver Scott"] },
-  { id: 5, name: "Caesar Salad", users: ["Linda Moore", "Peter Harris", "Sophia Young"] },
-  { id: 6, name: "Spaghetti Bolognese", users: ["Charlotte Evans", "Daniel King", "Megan Lewis", "James Turner"] },
-  { id: 7, name: "Lamb Chops", users: ["Ava Phillips", "Lucas Walker", "Jack Hall"] },
-  { id: 8, name: "Vegetable Stir-Fry", users: ["Grace Carter", "Leo Nelson", "Zoe Mitchell", "Oscar Perez"] },
-  { id: 9, name: "Shrimp Scampi", users: ["Ella Green", "Michael Harris", "Ella Thompson"] },
-  { id: 10, name: "Margherita Pizza", users: ["Ethan Clark", "Ariana Rivera", "Olivia Adams"] }
-];
 
 function UserInfo() {
+  const { pollId } = useParams();
+  const [dishes, setDishes] = useState([]);
   const [selectedDish, setSelectedDish] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchVoterData = async () => {
+      try {
+        setLoading(true);
+        // Updated API endpoint to match the route in pollroutes.js
+        const response = await fetch(`http://localhost:3000/api/poll/${pollId}/voters`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch voter data');
+        }
+        const data = await response.json();
+        
+        // Format data for components
+        const formattedDishes = data.map(dish => ({
+          id: dish.id,
+          name: dish.name,
+          users: dish.users
+        }));
+        
+        setDishes(formattedDishes);
+        setLoading(false);
+        
+        // Select first dish by default if available
+        if (formattedDishes.length > 0 && !selectedDish) {
+          setSelectedDish(formattedDishes[0].id);
+        }
+      } catch (err) {
+        console.error("Error fetching voter data:", err);
+        setError("Failed to load voter data. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    if (pollId) {
+      fetchVoterData();
+    }
+  }, [pollId]);
 
   const selectedDishData = dishes.find((dish) => dish.id === selectedDish);
 
@@ -35,12 +63,45 @@ function UserInfo() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex justify-center items-center h-[60vh]">
+          <p className="text-lg font-medium text-black">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex justify-center items-center h-[60vh]">
+          <p className="text-lg font-medium text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dishes.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex justify-center items-center h-[60vh]">
+          <p className="text-lg font-medium text-black">No data available for this poll.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header/>
 
       <div className="mb-4 mt-4 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Today's Menu Selection</h1>
+        <h1 className="text-2xl font-bold text-[#178226]">User Voting Information</h1>
       </div>
       <div>
         <DishList dishes={dishes} selectedDish={selectedDish} setSelectedDish={setSelectedDish} />
@@ -68,7 +129,4 @@ function UserInfo() {
   );
 }
 
-
-
 export default UserInfo;
-

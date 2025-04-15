@@ -1,25 +1,43 @@
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function DishList({ dishes, selectedDish, setSelectedDish }) {
   return (
-    <div className="bg-white border border-gray-300 shadow-sm  rounded-lg p-4 sm:p-6 sm:mx-8">
+    <TooltipProvider>
+      <div className="bg-white border border-gray-300 shadow-sm rounded-lg p-4 sm:p-6 mx-2 sm:mx-8">
+      <div className="flex flex-wrap justify-start gap-4 sm:gap-6 lg:gap-10">
 
-      <div className="grid grid-cols-3 sm:grid-cols-8 m-0.5 sm:m-4 gap-3 sm:gap-2 lg:gap-6">
-        {dishes.map((dish) => (
-          <Button
-            key={dish.id}
-            variant={selectedDish === dish.id ? "default" : "outline"}
-            onClick={() => setSelectedDish(dish.id)}
-            className="w-full max-w-[150px] h-auto min-h-[44px] 
-                       flex flex-col items-center justify-center text-center 
-                       text-xs sm:text-sm font-semibold 
-                       border-2 border-[#008BA1] rounded-[20px] 
-                       px-2 py-0.5 sm:px-4 sm:py-2 leading-tight"
-          >
-            <span className="whitespace-normal break-words">{dish.name}</span>
-          </Button>
-        ))}
+          {dishes.map((dish) => (
+            <Tooltip key={dish.id}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedDish(dish.id)}
+                  className={`min-w-[90px] sm:min-w-[110px] max-w-[150px] 
+              h-11 sm:h-12 text-xs sm:text-sm font-semibold 
+              border-2 border-gray-400 rounded-[20px] 
+              px-2 py-1 sm:px-3 sm:py-2 leading-tight 
+              flex items-center justify-center text-center
+              ${selectedDish === dish.id ? "bg-green-100 border-green-600" : ""}`}
+                >
+                  <span className="truncate w-full">
+                    {dish.name.length > 10 ? dish.name.slice(0, 10) + "..." : dish.name}
+                  </span>
+                </Button>
+
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {dish.name}
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
