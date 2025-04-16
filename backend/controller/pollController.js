@@ -3,27 +3,45 @@ const { Poll } = require("../model/pollModel");
 const { v4: uuidv4 } = require("uuid");
 const { closePoll } = require("./closePoll");
 
+
+const getPollSummary = async (req, res) => {
+  try {
+    const poll = await Poll.findById(req.params.pollId);
+    if (!poll) return res.status(404).json({ error: "Poll not found" });
+
+    const summary = {
+      title: poll.title,
+      options: poll.options.map((opt) => ({
+        name: opt.name,
+        url: opt.url,
+        vote_count: opt.vote_count,
+      })),
+    };
+
+    res.json(summary);
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+    res.status(500).json({ error: "Failed to fetch summary" });
+  }
+};
+
+
+const getAllPolls = async (req, res) => {
+  try {
+    const polls = await Poll.find(); // fetch all polls from DB
+    res.status(200).json(polls);
+  } catch (error) {
+    console.error(":x: Error fetching polls:", error);
+    res.status(500).json({ error: "Failed to fetch polls" });
+  }
+};
+
 async function sendPoll(req, res) {
   try {
     const poll_id = uuidv4();
+    const { options, expires_at: expiresAtRaw, title, channel_id } = req.body;
 
-    const { options, expires_at } = req.body;
-
-    // const options = req.body.options || [
-    //   { name: "Pizza", url: "https://example.com/images/pizza.jpg", vote_count: 0, voters: [] },
-    //   { name: "Sushi", url: "https://example.com/images/sushi.jpg", vote_count: 0, voters: [] },
-    //   { name: "Burger", url: "https://example.com/images/burger.jpg", vote_count: 0, voters: [] }
-    // ];
-    
-    // // Ensure all options have vote_count and voters array initialized
-    // options.forEach(option => {
-    //   option.vote_count = 0;
-    //   option.voters = [];
-    // });
-
-    const title = req.body.title || "Food Poll";
-    // const expires_at = req.body.expires_at ? new Date(req.body.expires_at) : new Date(Date.now() + 5 * 60 * 1000); 
-
+    // Validate and format options
     if (
       !options ||
       !Array.isArray(options) ||
@@ -33,12 +51,21 @@ async function sendPoll(req, res) {
       return res.status(400).json({ error: "Options must include both name and url." });
     }
 
+    // Parse expires_at to Date object
+    const expires_at = new Date(expiresAtRaw);
+    if (isNaN(expires_at.getTime())) {
+      return res.status(400).json({ error: "Invalid expires_at format." });
+    }
+
+    const formattedTitle = title || "Food Poll";
+
+    // Build Slack poll blocks
     const blocks = [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `🍽️ *${title}*\n\nTotal Votes: 0`
+          text: `:knife_fork_plate: *${formattedTitle}*\n\nTotal Votes: 0`
         }
       },
       {
@@ -60,7 +87,7 @@ async function sendPoll(req, res) {
             type: "button",
             text: {
               type: "plain_text",
-              text: "📊 View Votes"
+              text: ":bar_chart: View Votes"
             },
             value: poll_id,
             action_id: "view_votes"
@@ -69,10 +96,11 @@ async function sendPoll(req, res) {
       }
     ];
 
+    // Send message to Slack
     const result = await slackApp.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: req.body.channel_id || process.env.SLACK_CHANNEL,
-      text: `🍽️ *${title}* Vote for your favorite!`,
+      channel: channel_id || process.env.SLACK_CHANNEL,
+      text: `:knife_fork_plate: *${formattedTitle}* Vote for your favorite!`,
       blocks
     });
 
@@ -80,26 +108,70 @@ async function sendPoll(req, res) {
       throw new Error("Failed to send poll to Slack.");
     }
 
+    // Save poll to MongoDB
     await Poll.create({
       poll_id,
       message_ts: result.ts,
       channel_id: result.channel,
-      title: title,
+      title: formattedTitle,
       options,
       votes: [],
       status: "active",
       created_at: new Date(),
-      expires_at: expires_at
+      expires_at
     });
 
+    // Schedule automatic poll close
     const delay = expires_at.getTime() - Date.now();
     setTimeout(() => closePoll(result.channel, result.ts, poll_id), delay);
 
     res.status(200).json({ message: "Poll sent successfully!", poll_id });
+
   } catch (error) {
-    console.error("❌ Error sending poll:", error);
+    console.error(":x: Error sending poll:", error);
     res.status(500).json({ error: "Error sending poll" });
   }
 }
 
-module.exports = {sendPoll};
+// Updated getVotersByDish function to use findById instead of findOne({ poll_id })
+const getVotersByDish = async (req, res) => {
+  try {
+    const { pollId } = req.params;
+
+    if (!pollId) {
+      return res.status(400).json({ error: "Poll ID is required" });
+    }
+
+    // Changed from findOne({poll_id: pollId}) to findById(pollId)
+    const poll = await Poll.findById(pollId);
+    if (!poll) {
+      return res.status(404).json({ error: "Poll not found" });
+    }
+
+    const votersByDish = {};
+    poll.options.forEach(option => {
+      votersByDish[option.name] = {
+        id: option.name,
+        name: option.name,
+        users: []
+      };
+    });
+
+    poll.votes.forEach(vote => {
+      if (votersByDish[vote.choice]) {
+        votersByDish[vote.choice].users.push({
+          user_id: vote.user_id,
+          username: vote.username,
+          timestamp: vote.timestamp
+        });
+      }
+    });
+
+    res.status(200).json(Object.values(votersByDish));
+  } catch (error) {
+    console.error("Error getting voters by dish:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { sendPoll, getAllPolls, getPollSummary, getVotersByDish };

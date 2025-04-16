@@ -1,110 +1,152 @@
 import { getRestauantSwigyData, searchDish } from '../api/zomatoApi';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { FiSearch } from 'react-icons/fi';
-import arrowLeft from '../../assets/arrow-left.png'
-import arrowRight from '../../assets/arrow-right.png'
+import { useEffect, useState, useRef } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const FoodSelection = () => {
-  // Food items data array
-
   const navigate = useNavigate();
-  const [foodItems , setFoodItem]= useState("");
-  const [value ,setValue] = useState(0)
+  const [foodItems, setFoodItem] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollContainerRef = useRef(null);
+  const itemsPerScroll = 5; // Number of items to scroll at once
 
   const getRestauantData = async () => {
     try {
-      const data = await getRestauantSwigyData();
-      setFoodItem(data);
+        setLoading(true)
+        const data = await getRestauantSwigyData();
+        if(data){
+          setFoodItem(data);
+        }
+        setLoading(false)
     } catch (error) {
       console.error("Error fetching restaurant data:", error);
     }
   };
-  console.log(value)
-  const handleRightClick = ()=>{
-    value>=200 ? value>=250 ? value(250): setValue(value +50) :setValue(value + 100);
-  }
-  
-  const handleLeftClick = ()=>{
-    value<=0 ? setValue(0) : setValue(value - 100);
-  }
- 
 
-  useEffect(()=>{
+  useEffect(() => {
     getRestauantData();
-  },[])
+  }, []);
 
-  
-  const handleItemClick = async(name)=>{
-    console.log(name);
-    const data = await searchDish(name)
-    console.log(data);
+  const handleScroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-    navigate("/search" , { state: { data } })
+    const itemWidth = container.firstChild ? container.firstChild.offsetWidth : 0;
+    const scrollAmount = itemWidth * itemsPerScroll;
+    
+    if (direction === 'right') {
+      const newPosition = Math.min(
+        scrollPosition + scrollAmount,
+        container.scrollWidth - container.clientWidth
+      );
+      setScrollPosition(newPosition);
+      container.scrollTo({ left: newPosition, behavior: 'smooth' });
+    } else {
+      const newPosition = Math.max(scrollPosition - scrollAmount, 0);
+      setScrollPosition(newPosition);
+      container.scrollTo({ left: newPosition, behavior: 'smooth' });
+    }
+  };
 
-  }
-
+  const handleItemClick = async(name) => {
+    const formattedText = name.toLowerCase().replace(/\s+/g, '+');
+    navigate(`/search?name=${formattedText}`);
+  };
 
   return (
-    <div className="w-full mt-15 mb-15 overflow-hidden">
+    <div className="w-full mt-4 mb-15 overflow-hidden">
       {/* Header Section */}
-      <div className="w-[75%] mx-auto mt-3 overflow-hidden">
-        <div className="flex justify-between ">
-          {/* Heading on the right with right text alignment */}
-          <h2 className="font-bold text-4xl text-right">
+      <div className="w-[75%] mx-auto mt-3 mb-6">
+        <div className="flex justify-between items-center">
+          {/* Heading */}
+          <h2 className="font-semibold text-3xl">
             What's on your mind?
           </h2>
-          {/* Icon group on the left */}
+          {/* Navigation buttons */}
           <div className="flex gap-3">
-            <button  onClick={handleLeftClick}  className="bg-grey p-2">
-
-            <img
-                  src={arrowLeft}
-                  alt="Cart"
-                          className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-                />
+            <button 
+              onClick={() => handleScroll('left')} 
+              className="bg-white cursor-pointer p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
+              disabled={scrollPosition <= 0}
+            >
+              <FiChevronLeft className={`text-xl ${scrollPosition <= 0 ? 'text-gray-300' : 'text-gray-700'}`} />
             </button>
-            <button onClick={handleRightClick} className="bg-grey p-2">
-              {/* <FiSearch className="text-gray-500 text-2xl" /> */}
-              <img
-                  src={arrowRight}
-                  alt="Cart"
-                 className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-                />
-
+            <button 
+              onClick={() => handleScroll('right')} 
+              className="bg-white cursor-pointer p-2 rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center w-10 h-10 border border-gray-200"
+            >
+              <FiChevronRight className="text-xl text-gray-700" />
             </button>
           </div>
         </div>
       </div>
 
-        {/* Items Section */}
-      <div    className="w-[81%] mx-auto mt-3 grid grid-rows-2 grid-flow-col gap-4  overflow-hidden  ">
-        {foodItems?.info?.map((food, index) => (
-          <div
-            onClick={() => handleItemClick(food.action?.text)}
-            key={food.id || index}
-            className="flex flex-col items-center"
-          >
-            <div  style={{translate: `-${value}%`}}  className="w-24 h-24 md:w-40 md:h-40  mb-2 overflow-hidden duration-300">
-              <img 
-                src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/PC_Mweb/${
-                  food.action.text === 'Waffle'
-                    ? 'Waffles'
-                    : ['Noodles', 'Rolls'].includes(food.action.text)
-                      ? food.action.text
-                      : food.action.text.endsWith('s')
-                        ? food.action.text.slice(0, -1)
-                        : food.action.text
-                }.png`} 
-                alt={food.action.text} 
-                className="w-full h-full object-cover cursor-pointer "
-              />
+      {/* Items Section - Single Row */}
+
+      <div>
+     {loading ? (
+    <>
+      <div className="w-[81%] mx-auto relative">
+        <div
+          className="flex overflow-x-hidden scroll-smooth mt-10 ml-5"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {[...Array(10)].map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center flex-shrink-0 mx-3 transition-transform hover:scale-105"
+            >
+              <div className="w-30 h-30 md:w-30 md:h-30 mb-2 overflow-hidden bg-gray-300 animate-pulse rounded-lg" />
             </div>
-          </div>
-        ))}
+          ))}
+
+        </div>
       </div>
+    </>
+       ) : (
+         <>
+      <div className="w-[81%] mx-auto relative">
+        <div
+          ref={scrollContainerRef}
+          className="flex overflow-x-hidden scroll-smooth"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {foodItems?.info?.map((food, index) => (
+            <div
+              onClick={() => handleItemClick(food.action?.text)}
+              key={food.id || index}
+              className="flex flex-col items-center flex-shrink-0 mx-3 transition-transform hover:scale-105"
+            >
+              <div className="w-32 h-32 md:w-36 md:h-36 mb-2 overflow-hidden">
+                <img
+                  src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/PC_Mweb/${
+                    food.action.text === "Waffle"
+                      ? "Waffles"
+                      : ["Noodles", "Rolls"].includes(food.action.text)
+                      ? food.action.text
+                      : food.action.text.endsWith("s")
+                      ? food.action.text.slice(0, -1)
+                      : food.action.text
+                  }.png`}
+                  alt={food.action.text}
+                  className="w-full h-full object-cover cursor-pointer"
+                />
+              </div>
+              {/* Optionally remove or add the dish name text here */}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )}
 </div>
 
+
+
+
+      
+    </div>
   );
 };
 

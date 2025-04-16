@@ -10,6 +10,7 @@ const slackRoutes = require("./routes/slack_routes.js");
 
 
 
+
 const app = express();
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use(cors({
 
 app.use(require("./routes/auth"));
 app.use(require("./routes/swiggy.js"));
+app.use(require("./routes/pollroutes.js"))
 app.use("/api", pollRoutes);
 app.use("/api/polls", Poll_Routes);
 app.use("/api/slack", slackRoutes);
@@ -47,4 +49,6 @@ app.listen(PORT, () => {
     console.log(`server start at port ${PORT}`);
 });
 
+const { startSlackApp } = require("./slack/app");
+startSlackApp(); // Start Slack bot
 

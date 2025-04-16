@@ -26,6 +26,10 @@ export const CartProvider = ({ children }) => {
     setCartItems(cartItems.filter(item => item.id !== itemId));
   };
 
+  const emptyCart = ()=>{
+    setCartItems([])
+  }
+
   // Add updateQuantity function for future use
   const updateQuantity = (itemId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -45,7 +49,8 @@ export const CartProvider = ({ children }) => {
       setCartItems, 
       addToCart, 
       removeFromCart, 
-      updateQuantity 
+      updateQuantity,
+      emptyCart
     }}>
       {children}
     </CartContext.Provider>

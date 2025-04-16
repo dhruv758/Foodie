@@ -9,10 +9,12 @@ import PollPage from "./PollPage/page/PollPage";
 
 import EmailApproval from "./emailReply/AcceptEmail";
 import EmailReject from "./emailReply/RejectEmail";
-
+import SummaryPage from "./Summary/SummaryPage";
 import UserInfo from "./Userinfo/Page/Userinfo";
 
 import RestaurantMenuPage from "./SearchResPage/page/RestaurantMenuPage";
+import ProtectedRoute from "./components/protectedRoute";
+import DefaultComponent from "./components/defaultComponent";
 
 
 function App() {
@@ -24,18 +26,18 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
-
-        <Route  path="/home" element={<HomePage/>}/>
-        <Route  path="/search" element={<SearchResPage/>}/>
-        <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
-
         <Route path="/approve-accept" element={<EmailApproval />} />
         <Route path="/approve-reject" element={<EmailReject />} />
+        <Route element={<ProtectedRoute />}>
+            <Route  path="/home" element={<HomePage/>}/>
+            <Route  path="/search" element={<SearchResPage/>}/>
+            <Route path="/restaurant/:restaurantId" element={<RestaurantMenuPage />} />
 
-        <Route path="/userinfo" element={<UserInfo/>}/>
-        <Route path="/polls" element={<PollPage />} />
-        
-
+            <Route path="/summary/:pollId" element={<SummaryPage />} />
+            <Route path="/poll/:pollId/users" element={<UserInfo />} />
+            <Route path="/polls" element={<PollPage />} />
+          </Route>
+        <Route path="*" element={<DefaultComponent/>}/>
 
       </Routes>
     </>

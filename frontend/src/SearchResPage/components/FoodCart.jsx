@@ -1,13 +1,23 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const FoodCard = ({ food }) => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
   const handleCardClick = () => {
-    navigate(`/restaurant/${food.id}`);
+    // Make sure we're passing the restaurant name correctly
+    // Use food.name as the restaurant name if available
+    const restaurantName = food.name || food.restaurantName || searchParams.get('name') || "Restaurant";
+    
+    // Encode the restaurant name to handle special characters in URLs
+    const encodedName = encodeURIComponent(restaurantName);
+    
+    // Navigate with the restaurant name in the URL
+    navigate(`/restaurant/${food.id}?name=${encodedName}`);
   };
+
   return (
-    <div onClick={handleCardClick} className="relative border rounded-lg overflow-hidden shadow-lg flex flex-col h-full">
+    <div onClick={handleCardClick} className="relative border rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 flex flex-col h-full">
       {/* Food Image with Offer Banner */}
       <div className="relative">
         <img src={food.image || "/placeholder.svg"} alt={food.name} className="w-full h-44 object-cover" />
@@ -18,30 +28,20 @@ const FoodCard = ({ food }) => {
 
       {/* Restaurant Info */}
       <div className="p-3 flex flex-col flex-grow">
-        <h2 className="text-lg font-bold text-black truncate">{food.name}</h2>
-
-        {/* Rating and Delivery Time */}
+        <h2 className="text-lg font-semibold text-black truncate">
+          {food.name}
+        </h2>
         <div className="flex items-center mt-1 mb-1">
           <span className="bg-green-700 text-white text-xs px-1 py-0.5 rounded flex items-center">
-            <span>{food.rating.toFixed(1)}</span>
-            <span className="ml-1">★</span>
+            {food.rating} <span className="ml-0.5">★</span>
           </span>
-          <span className="text-sm text-gray-600 ml-2">
-          {food.deliveryTime}
-          </span>
+          <span className="text-sm text-gray-600 ml-2">{food.deliveryTime}</span>
         </div>
-
-        {/* Food Type/Cuisine */}
-        <p className="text-sm text-gray-600 truncate">
-          {food.type}
-          {food.type && ", "}Fast Food{food.area && ", "}Indian
-        </p>
-
-        {/* Location */}
-        <p className="text-sm text-gray-600 mt-1 truncate">{food.area || food.locality || "Unknown Location"}</p>
+        <p className="text-sm text-gray-600 truncate">{food.type}</p>
+        <p className="text-sm text-gray-600 truncate">{food.area || food.locality || ""}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FoodCard
+export default FoodCard;

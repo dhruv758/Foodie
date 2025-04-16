@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   EnvelopeIcon,
   LockClosedIcon,
@@ -8,12 +8,23 @@ import {
 import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hook/context/authContext";
 import logo from "../../assets/logo.png";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [credential, setCredential] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+
+
+  useEffect(()=>{
+    const isAuthenticated = localStorage.getItem('auth');
+    
+    if(isAuthenticated){
+      navigate("/home")
+    }
+  },[])
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +43,7 @@ export default function Login() {
       });
 
       if (!response.ok) {
+        toast.error("Invalid Credentail")
         throw new Error("Network response was not ok");
       }
 
@@ -60,15 +72,14 @@ export default function Login() {
     setCredential((prev) => ({ ...prev, password: passwordValue }));
   };
 
-  const onForgotPasswordClick = () => {
-    Navigate("/");
-  };
 
-  const onRegitrationButtonClick = () => {
-    Navigate("/register");
-  };
+
+
+
+ 
   return (
     <div className="flex flex-col items-center w-full">
+      <ToastContainer />
       <img src={logo} alt="" className="h-10 w-48 mb-6" />
       {/* Welcome text */}
       <h2 className="text-2xl font-semibold mb-8">Welcome</h2>
@@ -123,7 +134,6 @@ export default function Login() {
           <NavLink to="/forgot-password">
             <button
               type="button"
-              onClick={onForgotPasswordClick}
               className="text-[#1ac073] cursor-pointer text-sm"
             >
               Forgot Password?

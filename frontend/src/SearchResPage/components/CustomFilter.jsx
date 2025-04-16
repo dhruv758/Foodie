@@ -11,8 +11,8 @@ function CustomFilter({ searchQuery, setSearchQuery, sortBy, setSortBy, minRatin
 <div className="relative">
   <input
     type="text"
-    placeholder="Search restaurants, cuisines, or areas..."
-    className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Search restaurants..."
+    className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ac073]"
     value={searchQuery}
     onChange={(e) => {
       setSearchQuery(e.target.value);
@@ -26,15 +26,15 @@ function CustomFilter({ searchQuery, setSearchQuery, sortBy, setSortBy, minRatin
 {/* Filter and Sort Controls */}
 <div className="flex flex-wrap gap-3">
   <button
-    className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+    className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
     onClick={() => setShowFilters(!showFilters)}
   >
     <FaFilter /> Filters
   </button>
   
-  <div className="relative">
+  <div className="relative ">
     <select
-      className="appearance-none px-4 py-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="appearance-none px-4 py-2 bg-gray-100 cursor-pointer rounded-lg focus:outline-none focus:ring-2 focus:ring-transparent"
       value={sortBy}
       onChange={(e) => {
         setSortBy(e.target.value);
@@ -54,7 +54,7 @@ function CustomFilter({ searchQuery, setSearchQuery, sortBy, setSortBy, minRatin
   </div>
   
   <button
-    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+    className="px-4 py-2 bg-[#1ac073] text-white rounded-lg hover:bg-[#1ac073]/90 cursor-pointer transition-colors"
     onClick={resetFilters}
   >
     Reset Filters
@@ -76,7 +76,7 @@ function CustomFilter({ searchQuery, setSearchQuery, sortBy, setSortBy, minRatin
           {[0, 3, 3.5, 4, 4.5].map((rating) => (
             <button
               key={rating}
-              className={`px-3 py-1 rounded-full ${
+              className={`px-3 py-1 cursor-pointer rounded-full ${
                 minRating === rating
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 hover:bg-gray-200"
@@ -108,7 +108,7 @@ function CustomFilter({ searchQuery, setSearchQuery, sortBy, setSortBy, minRatin
           ].map((range) => (
             <button
               key={range.value}
-              className={`px-3 py-1 rounded-full ${
+              className={`px-3 py-1 cursor-pointer rounded-full ${
                 priceRange === range.value
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 hover:bg-gray-200"
