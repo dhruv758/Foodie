@@ -15,7 +15,7 @@ Router.post("/poll/start", async (req, res) => {
     }
 });
 
-Router.get('/all-polls',getAllPollsController)
+
 
 
 module.exports = Router;
