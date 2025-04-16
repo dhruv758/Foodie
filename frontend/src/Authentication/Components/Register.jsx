@@ -9,7 +9,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { toast, ToastContainer } from "react-toastify";
 
-
+// ecwecwecw
 export default function Register() {
   const navigate = useNavigate();
   const [credential, setCredential] = useState({
