@@ -37,7 +37,7 @@ app.use(cors({
 
 app.use(require("./routes/auth"));
 app.use(require("./routes/swiggy.js"));
-app.use(require("./routes/pollroutes.js"))
+app.use(require("./routes/poll_routes.js"))
 // app.use("/api", pollRoutes);
 // app.use("/api/polls", Poll_Routes);
 // app.use("/api/slack", slackRoutes);

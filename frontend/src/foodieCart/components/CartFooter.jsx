@@ -45,15 +45,17 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
     }
 
     const pollData = {
-      options: cartItems.map(item => ({
+      question:"Food Poll ",
+      choices: cartItems.map(item => ({
         name: item.name,
-        url: item.id
+        id: `d21d1+${item.id}`
       })),
-      expires_at: new Date(endTime).toISOString()  
+      startDateTime: new Date().toISOString(),
+      endDateTime: new Date(endTime).toISOString()  
     };
 
     try {
-      const apiUrl = "http://localhost:3000/poll/start";
+      const apiUrl = "http://localhost:3000/poll-start";
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {

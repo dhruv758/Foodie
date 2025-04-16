@@ -110,7 +110,7 @@ const createPoll = async (req, res) => {
 
 const createInstantPoll = async (req, res) => {
   try {
-    console.log("qwdqwd");
+    console.log(req.body);
 
     const {
       question,
@@ -121,6 +121,7 @@ const createInstantPoll = async (req, res) => {
 
     // ✅ Validate core fields
     if (!question || !choices || choices.length === 0 || !endDateTime) {
+      console.log("23")
       return res.status(400).json({ message: "Required fields missing." });
     }
 
@@ -136,10 +137,10 @@ const createInstantPoll = async (req, res) => {
     }
 
     let start = null;
-
+    
     // 🔁 Convert `choices` into `options` expected by schema
     const options = choices.map((choice) => ({
-      name: choice,
+      name: choice.name,
       id: choice.id,
       vote_count: 0,
     }));
@@ -150,7 +151,6 @@ const createInstantPoll = async (req, res) => {
       startDateTime,
       endDateTime,
     });
-
     const savedPoll = await poll.save();
 
     await sendPollToSlack(savedPoll);
