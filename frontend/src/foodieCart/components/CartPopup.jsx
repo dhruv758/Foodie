@@ -31,55 +31,52 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
           </svg>
         </Button>
 
-        {cartItems.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-600 text-2xl">Your cart is empty</p>
-          </div>
-        ) : (
-          <>
-            <CartHeader itemCount={cartItems.length} />
-            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="w-full border border-gray-200 rounded-lg overflow-hidden"
-                >
-                  <div className="flex items-center p-4 h-[100px]">
-                    {/* Image */}
-                    <div className="mr-4 overflow-hidden rounded relative" style={{ width: '80px', height: '82.29px' }}>
-                      <img
-                        src={item.image || foodImage}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+        {/* Always show the header */}
+        <CartHeader itemCount={cartItems.length} />
 
-                    {/* Details */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-lg">{item.name}</h3>
-                      </div>
-                      <p className="text-gray-600 text-sm">By {item.restaurant}</p>
-                      <p className="text-black font-semibold text-sm mt-1">₹{item.price}</p>
-                    </div>
-
-                    {/* Delete Button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeItem(item.id)}
-                      className="ml-4 hover:opacity-80"
-                    >
-                      <img src={deleteIcon} alt="Delete" className="h-6 w-6" />
-                    </Button>
+        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+          {cartItems.length > 0 ? (
+            cartItems.map((item) => (
+              <div
+                key={item.id}
+                className="w-full border border-gray-200 rounded-lg overflow-hidden"
+              >
+                <div className="flex items-center p-4 h-[100px]">
+                  {/* Image */}
+                  <div className="mr-4 overflow-hidden rounded relative" style={{ width: '80px', height: '82.29px' }}>
+                    <img
+                      src={item.image || foodImage}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                </div>
-              ))}
-            </div>
 
-            <CartFooter cartItems={cartItems} onPollInitiated={onClose} />
-          </>
-        )}
+                  {/* Details */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-lg">{item.name}</h3>
+                    </div>
+                    <p className="text-gray-600 text-sm">By {item.restaurant}</p>
+                    <p className="text-black font-semibold text-sm mt-1">₹{item.price}</p>
+                  </div>
+
+                  {/* Delete Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(item.id)}
+                    className="ml-4 hover:opacity-80"
+                  >
+                    <img src={deleteIcon} alt="Delete" className="h-6 w-6" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : null}
+        </div>
+
+        {/* Always show the footer */}
+        <CartFooter cartItems={cartItems} onPollInitiated={onClose} />
       </div>
     </div>
   );

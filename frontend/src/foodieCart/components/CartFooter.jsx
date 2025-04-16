@@ -2,9 +2,13 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from '@/components/ui/button';
+import { useCart } from "../Context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const CartFooter = ({ cartItems, onPollInitiated }) => {
   const [startTime, setStartTime] = useState(new Date());
+  const navigate = useNavigate();
+  const {emptyCart} =useCart();
   const [endTime, setEndTime] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
   const [statusType, setStatusType] = useState(null);
@@ -45,7 +49,7 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
         name: item.name,
         url: item.url || `https://yourdomain.com/food/${item.id}`
       })),
-      expires_at: new Date(endTime).toISOString()  // ✅ fixed here
+      expires_at: new Date(endTime).toISOString()  
     };
 
     try {
@@ -67,9 +71,11 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
 
       const result = await response.json();
       console.log("✅ Poll started:", result);
-
+      emptyCart();
       setStatusType("success");
+      navigate("/polls")
       setStatusMessage(`✅ Poll started successfully!`);
+      
 
       setTimeout(() => {
         setStatusMessage(null);

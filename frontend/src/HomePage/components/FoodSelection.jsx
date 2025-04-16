@@ -6,14 +6,19 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 const FoodSelection = () => {
   const navigate = useNavigate();
   const [foodItems, setFoodItem] = useState("");
+  const [loading, setLoading] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0);
   const scrollContainerRef = useRef(null);
   const itemsPerScroll = 5; // Number of items to scroll at once
 
   const getRestauantData = async () => {
     try {
-      const data = await getRestauantSwigyData();
-      setFoodItem(data);
+        setLoading(true)
+        const data = await getRestauantSwigyData();
+        if(data){
+          setFoodItem(data);
+        }
+        setLoading(false)
     } catch (error) {
       console.error("Error fetching restaurant data:", error);
     }
@@ -45,9 +50,8 @@ const FoodSelection = () => {
   };
 
   const handleItemClick = async(name) => {
-    const data = await searchDish(name);
     const formattedText = name.toLowerCase().replace(/\s+/g, '+');
-    navigate(`/search?name=${formattedText}`, { state: { data } });
+    navigate(`/search?name=${formattedText}`);
   };
 
   return (
@@ -79,11 +83,34 @@ const FoodSelection = () => {
       </div>
 
       {/* Items Section - Single Row */}
+
+      <div>
+     {loading ? (
+    <>
       <div className="w-[81%] mx-auto relative">
-        <div 
+        <div
+          className="flex overflow-x-hidden scroll-smooth mt-10 ml-5"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {[...Array(10)].map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col items-center flex-shrink-0 mx-3 transition-transform hover:scale-105"
+            >
+              <div className="w-30 h-30 md:w-30 md:h-30 mb-2 overflow-hidden bg-gray-300 animate-pulse rounded-lg" />
+            </div>
+          ))}
+
+        </div>
+      </div>
+    </>
+       ) : (
+         <>
+      <div className="w-[81%] mx-auto relative">
+        <div
           ref={scrollContainerRef}
           className="flex overflow-x-hidden scroll-smooth"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {foodItems?.info?.map((food, index) => (
             <div
@@ -92,25 +119,33 @@ const FoodSelection = () => {
               className="flex flex-col items-center flex-shrink-0 mx-3 transition-transform hover:scale-105"
             >
               <div className="w-32 h-32 md:w-36 md:h-36 mb-2 overflow-hidden">
-                <img 
+                <img
                   src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/PC_Mweb/${
-                    food.action.text === 'Waffle'
-                      ? 'Waffles'
-                      : ['Noodles', 'Rolls'].includes(food.action.text)
-                        ? food.action.text
-                        : food.action.text.endsWith('s')
-                          ? food.action.text.slice(0, -1)
-                          : food.action.text
-                  }.png`} 
-                  alt={food.action.text} 
+                    food.action.text === "Waffle"
+                      ? "Waffles"
+                      : ["Noodles", "Rolls"].includes(food.action.text)
+                      ? food.action.text
+                      : food.action.text.endsWith("s")
+                      ? food.action.text.slice(0, -1)
+                      : food.action.text
+                  }.png`}
+                  alt={food.action.text}
                   className="w-full h-full object-cover cursor-pointer"
                 />
               </div>
-              {/* Removed the dish name text */}
+              {/* Optionally remove or add the dish name text here */}
             </div>
           ))}
         </div>
       </div>
+    </>
+  )}
+</div>
+
+
+
+
+      
     </div>
   );
 };
