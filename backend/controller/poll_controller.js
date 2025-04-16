@@ -141,7 +141,7 @@ const createInstantPoll = async (req, res) => {
     // 🔁 Convert `choices` into `options` expected by schema
     const options = choices.map((choice) => ({
       name: choice.name,
-      id: choice.id,
+      url: choice.url,
       vote_count: 0,
     }));
 

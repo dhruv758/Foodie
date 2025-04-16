@@ -2,15 +2,16 @@ const { slackApp } = require("../slack/app");
 const { Poll } = require("../model/pollModel");
 const { v4: uuidv4 } = require("uuid");
 const { closePoll } = require("./closePoll");
+const ScheduledPoll = require("../model/poll_model");
 
 
 const getPollSummary = async (req, res) => {
   try {
-    const poll = await Poll.findById(req.params.pollId);
+    const poll = await ScheduledPoll.findById(req.params.pollId);
     if (!poll) return res.status(404).json({ error: "Poll not found" });
 
     const summary = {
-      title: poll.title,
+      title: poll.question,
       options: poll.options.map((opt) => ({
         name: opt.name,
         url: opt.url,
@@ -28,7 +29,8 @@ const getPollSummary = async (req, res) => {
 
 const getAllPolls = async (req, res) => {
   try {
-    const polls = await Poll.find(); // fetch all polls from DB
+    const polls = await ScheduledPoll.find(); // fetch all polls from DB
+    console.log(polls)
     res.status(200).json(polls);
   } catch (error) {
     console.error(":x: Error fetching polls:", error);
@@ -143,7 +145,7 @@ const getVotersByDish = async (req, res) => {
     }
 
     // Changed from findOne({poll_id: pollId}) to findById(pollId)
-    const poll = await Poll.findById(pollId);
+    const poll = await ScheduledPoll.findById(pollId);
     if (!poll) {
       return res.status(404).json({ error: "Poll not found" });
     }

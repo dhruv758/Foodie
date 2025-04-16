@@ -55,7 +55,7 @@ const SummaryPage = () => {
                                 <p className="text-lg font-bold text-green-600">{opt.vote_count} votes</p>
                             </div>
                             <a
-                                href={opt.url || "https://www.swiggy.com/"} // fallback link
+                                href={"https://www.swiggy.com/"} // fallback link
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md ml-4"

@@ -37,10 +37,11 @@ app.use(cors({
 
 app.use(require("./routes/auth"));
 app.use(require("./routes/swiggy.js"));
+app.use("/api/polls", Poll_Routes);
 app.use(require("./routes/poll_routes.js"))
-// app.use("/api", pollRoutes);
-// app.use("/api/polls", Poll_Routes);
-// app.use("/api/slack", slackRoutes);
+app.use("/api/slack", slackRoutes);
+app.use("/api", pollRoutes);
+// app.use(require("./routes/slack_routes.js"))
 
 
 const PORT = process.env.PORT || 8080;
@@ -51,4 +52,8 @@ app.listen(PORT, () => {
 
 const { startSlackApp } = require("./slack/app");
 startSlackApp(); // Start Slack bot
+
+
+
+
 

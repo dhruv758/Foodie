@@ -86,7 +86,7 @@ function PollPage() {
   // Handle date changes
   const onStartDateChange = (date) => {
     setStartDateandTime(date);
-    
+    setEndDateandTime(date.add(15, "minute")); // Auto set end time 30 min ahead
     // If end date is before the new start date, update end date to match start date
     if (endDateandTime && date && endDateandTime.isBefore(date)) {
       setEndDateandTime(date);

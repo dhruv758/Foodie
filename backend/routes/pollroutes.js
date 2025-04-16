@@ -7,6 +7,15 @@ const {getVotersByDish} =require("../controller/pollController");
 
 const Router = express.Router();
 
+Router.get("/poll/all", getAllPolls);
+Router.get("/poll/summary/:pollId", getPollSummary);
+Router.get('/poll/:pollId/voters', getVotersByDish);
+
+module.exports = Router;
+
+
+
+
 // Router.post("/poll/start", async (req, res) => {
 //   try {
 //     await sendPoll(req, res);
@@ -17,10 +26,3 @@ const Router = express.Router();
 //     }
 //   }
 // });
-
-
-Router.get("/poll/all", getAllPolls);
-Router.get("/poll/summary/:pollId", getPollSummary);
-Router.get('/poll/:pollId/voters', getVotersByDish);
-
-module.exports = Router;
