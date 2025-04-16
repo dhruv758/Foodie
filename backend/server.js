@@ -1,13 +1,19 @@
 const express = require("express");
-const dotenv = require("dotenv");
+const dotenv = require('dotenv');
 const morgan = require("morgan");
 const { connectDB } = require("./config/db");
 const cors = require('cors');
 const pollRoutes = require("./routes/pollroutes.js");
+const Poll_Routes = require("./routes/poll_routes.js");
+const slackRoutes = require("./routes/slack_routes.js");
+
+
 
 
 const app = express();
 dotenv.config();
+
+require("./utils/recurringPollRunner.js");
 
 
 // database connect
@@ -27,9 +33,13 @@ app.use(cors({
 
 
 // //Routes
+
 app.use(require("./routes/auth"));
 app.use(require("./routes/swiggy.js"));
 app.use("/api", pollRoutes);
+app.use("/api/polls", Poll_Routes);
+app.use("/api/slack", slackRoutes);
+
 
 const PORT = process.env.PORT || 8080;
 

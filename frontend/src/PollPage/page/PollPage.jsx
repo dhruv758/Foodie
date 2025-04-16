@@ -378,6 +378,7 @@
 // export default PollPage;
 
 // src/components/PollPage.jsx
+import axios from "axios";
 import React from "react";
 import Header from "@/HomePage/components/HomeNavbar";
 import addPoll from "../../assets/add-poll.svg";
@@ -471,6 +472,26 @@ function PollPage() {
 
   const onEndDateChange = (date) => {
     setEndDateandTime(date);
+  };
+  const sendPoll = async () => {
+    try {
+      await axios.post("http://localhost:4000/api/polls/create", {
+        question,
+        choices,
+        allowMultipleVotes,
+        scheduleType,
+        startDateTime: scheduleType === "schedule" ? startDateandTime.toISOString() : null,
+        endDateTime: endDateandTime.toISOString(),
+        recurringType,
+        selectedDays,
+      });
+  
+      alert("Poll created successfully!");
+      setOpen(false); // Close modal
+    } catch (err) {
+      console.error("Failed to create poll", err);
+      alert("Failed to create poll");
+    }
   };
 
   return (
@@ -728,10 +749,13 @@ function PollPage() {
                 </div>
 
                 <div className="mt-4 pt-4 border-t">
-                  <Button className="w-full bg-emerald-500 hover:bg-emerald-600">
-                    Send Poll
-                  </Button>
-                </div>
+  <Button
+    className="w-full bg-emerald-500 hover:bg-emerald-600"
+    onClick={sendPoll}
+  >
+    Send Poll
+  </Button>
+</div>
               </DialogContent>
             </Dialog>
           </div>
