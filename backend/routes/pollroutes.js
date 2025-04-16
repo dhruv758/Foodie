@@ -18,6 +18,7 @@ Router.post("/poll/start", async (req, res) => {
   }
 });
 
+
 Router.get("/poll/all", getAllPolls);
 Router.get("/poll/summary/:pollId", getPollSummary);
 Router.get('/poll/:pollId/voters', getVotersByDish);
