@@ -1,8 +1,9 @@
 const express = require("express");
-const { createPoll } = require("../controller/poll_controller.js");
+const { createPoll, createInstantPoll } = require("../controller/poll_controller");
 
-const router = express.Router();
+const Router = express.Router();
 
-router.post("/create", createPoll);
+Router.post("/create", createPoll);
+Router.post("/poll/start", createInstantPoll);
 
-module.exports = router;
+module.exports = Router;

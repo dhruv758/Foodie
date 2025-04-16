@@ -5,6 +5,8 @@ const Poll = require("../model/poll_model");
 
 router.post("/interact", express.urlencoded({ extended: true }), async (req, res) => {
   try {
+
+    console.log("dqwdqw")
     const payload = JSON.parse(req.body.payload);
     const { user, actions, trigger_id } = payload;
 

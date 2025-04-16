@@ -1,8 +1,7 @@
-// recurringPollRunner.js
-import cron from "node-cron";
-import dayjs from "dayjs";
-import ScheduledPoll from "../model/poll_model.js";
-import { sendPollToSlack } from "../utils/slack.js";
+const cron = require("node-cron");
+const dayjs = require("dayjs");
+const ScheduledPoll = require("../model/poll_model.js");
+const { sendPollToSlack } = require("../utils/slack.js");
 
 // Run every minute
 cron.schedule("*/1 * * * *", async () => {
@@ -36,4 +35,3 @@ cron.schedule("*/1 * * * *", async () => {
     console.error("❌ Error in recurring poll runner:", err.message);
   }
 });
-

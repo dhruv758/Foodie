@@ -106,10 +106,9 @@ function PollPage() {
   };
   const sendPoll = async () => {
     try {
-      await axios.post("http://localhost:4000/api/polls/create", {
+      await axios.post("http://localhost:3000/api/polls/create", {
         question,
         choices,
-        allowMultipleVotes,
         scheduleType,
         startDateTime: scheduleType === "schedule" ? startDateandTime.toISOString() : null,
         endDateTime: endDateandTime.toISOString(),

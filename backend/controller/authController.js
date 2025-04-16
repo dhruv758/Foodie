@@ -269,7 +269,6 @@ exports.loginController = async (req, res) => {
 
   }
 
-
   exports.updatePasswordController = async(req,res)=>{
 
     const {email ,newPassword} = req.body;

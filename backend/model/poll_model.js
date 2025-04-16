@@ -12,10 +12,6 @@ const ScheduledPollSchema = new mongoose.Schema({
       vote_count: { type: Number, default: 0 },
     },
   ],
-  allowMultipleVotes: {
-    type: Boolean,
-    default: false,
-  },
   scheduleType: {
     type: String,
     enum: ["sendNow", "schedule"],
