@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 
 // Import the new FoodPollSection component
 import FoodPollSection from "./FoodPollSection";
+import { toast, ToastContainer } from "react-toastify";
 
 function PollPage() {
   // Default state values
@@ -105,6 +106,46 @@ function PollPage() {
     return current && startDateandTime && current.isBefore(startDateandTime, 'second');
   };
   const sendPoll = async () => {
+    // Validate required fields
+    if (!question.trim()) {
+      alert("Question field is required!");
+      return;
+    }
+  
+    // Check if any choice is empty
+    const hasEmptyChoices = choices.some(choice => !choice.trim());
+    if (hasEmptyChoices) {
+      // alert("All choice fields must be filled!");
+      toast.error("All choice fields must be filled!");
+      return;
+    }
+  
+    // Check if there's at least one choice
+    if (choices.length === 0) {
+      // alert("At least one choice is required!");
+      toast.error("At least one choice is required!");
+      return;
+    }
+
+
+    var endTimestamp = endDateandTime.valueOf(); // Convert to milliseconds
+    if(endTimestamp < Date.now()){
+      toast.error("End date must not precede the current date and time.");
+      return;
+    } 
+
+    var startTimestamp = startDateandTime.valueOf(); // Convert to milliseconds
+    if(startTimestamp < Date.now()){
+      toast.error("start date must not precede the current date and time.");
+      return;
+    } 
+
+    // Additional validation for recurring polls
+    if (recurringType === "recurring" && selectedDays.length === 0) {
+      toast.error("Please select at least one day for recurring polls!");
+      return;
+    }
+  
     try {
       await axios.post("http://localhost:3000/api/polls/create", {
         question,
@@ -123,9 +164,11 @@ function PollPage() {
       alert("Failed to create poll");
     }
   };
+  
 
   return (
     <>
+    <ToastContainer />
       <Header />
       <div className="max-w-screen-xl mx-auto p-4">
         <div className="max-w-screen-xl mx-auto p-5">
