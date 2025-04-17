@@ -29,7 +29,7 @@ const getPollSummary = async (req, res) => {
 
 const getAllPolls = async (req, res) => {
   try {
-    const polls = await ScheduledPoll.find(); // fetch all polls from DB
+    const polls = await ScheduledPoll.find().sort({created_at:-1}); // fetch all polls from DB
     console.log(polls)
     res.status(200).json(polls);
   } catch (error) {
