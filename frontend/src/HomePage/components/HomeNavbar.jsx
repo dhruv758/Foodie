@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FiPlus, FiSearch } from "react-icons/fi";
+import { FiPlus, FiSearch, FiLogOut } from "react-icons/fi";
 import logo from "../../assets/logo.png";
 import locationIcon from "../../assets/location.svg";
 import cartIcon from "../../assets/shopping-cart.png";
@@ -19,7 +19,9 @@ function HomeNavbar() {
   const [newAddress, setNewAddress] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showCartPopup, setShowCartPopup] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const timeoutRef = useRef(null);
+  const profileTimeoutRef = useRef(null);
 
   // Search handler
   const handleSearchClick = async (e) => {
@@ -58,6 +60,25 @@ function HomeNavbar() {
     timeoutRef.current = setTimeout(() => {
       if (!showInput) setShowDropdown(false);
     }, 200);
+  };
+
+  // Profile dropdown hover handlers
+  const handleProfileMouseEnter = () => {
+    clearTimeout(profileTimeoutRef.current);
+    setShowProfileDropdown(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    profileTimeoutRef.current = setTimeout(() => {
+      setShowProfileDropdown(false);
+    }, 200);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    // Add your logout logic here
+    // For example: clear localStorage, reset auth state, etc.
+    navigate('/'); // Navigate to login page after logout
   };
 
   // Truncate address to exactly 10 characters with ellipsis
@@ -194,14 +215,29 @@ function HomeNavbar() {
           )}
         </div>
 
-        {/* Profile */}
-        <button>
+        {/* Profile with Dropdown */}
+        <div 
+          className="relative"
+          onMouseEnter={handleProfileMouseEnter}
+          onMouseLeave={handleProfileMouseLeave}
+        >
           <img
             src={profileIcon}
             alt="Profile"
             className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-          />  
-        </button>
+          />
+          {showProfileDropdown && (
+            <div className="absolute top-10 right-0 mt-1 bg-white shadow-lg rounded-lg p-2 w-40 z-20">
+              <div 
+                className="flex items-center gap-2 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+                onClick={handleLogout}
+              >
+                <FiLogOut className="text-gray-500" />
+                <span className="font-medium">Logout</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
