@@ -78,6 +78,7 @@ function HomeNavbar() {
   const handleLogout = () => {
     // Add your logout logic here
     // For example: clear localStorage, reset auth state, etc.
+    localStorage.removeItem('auth');
     navigate('/'); // Navigate to login page after logout
   };
 
