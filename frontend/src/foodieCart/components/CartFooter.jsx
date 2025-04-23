@@ -8,20 +8,20 @@ import { useNavigate } from "react-router-dom";
 const CartFooter = ({ cartItems, onPollInitiated }) => {
   const [startTime, setStartTime] = useState(new Date());
   const navigate = useNavigate();
-  const {emptyCart} =useCart();
+  const { emptyCart } = useCart(); // You might want to use this for other purposes, but not for emptying cart here.
   const [endTime, setEndTime] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
   const [statusType, setStatusType] = useState(null);
 
   const handleStartTimeChange = (date) => {
     setStartTime(date);
-    if (endTime && date && endTime >= date) {
-      setEndTime(null);
+    if (endTime && date && endTime <= new Date(date.getTime() + 5 * 60000)) {
+      setEndTime(null); // reset end time if it's invalid based on new start time
     }
   };
 
   const handleEndTimeChange = (date) => {
-    if (!startTime || (date && date > startTime)) {
+    if (!startTime || (date && date > new Date(startTime.getTime() + 5 * 60000))) {
       setEndTime(date);
     }
   };
@@ -29,8 +29,14 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
   const getMinEndTime = () => {
     if (!startTime) return undefined;
     const minEnd = new Date(startTime);
-    minEnd.setMinutes(minEnd.getMinutes() + 15);
+    minEnd.setMinutes(minEnd.getMinutes() + 5);
     return minEnd;
+  };
+
+  const getMaxEndTime = () => {
+    const maxEnd = new Date();
+    maxEnd.setHours(23, 59, 59, 999);
+    return maxEnd;
   };
 
   const handleInitiatePoll = async () => {
@@ -45,13 +51,13 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
     }
 
     const pollData = {
-      question:"Food Poll ",
+      question: "Food Poll",
       choices: cartItems.map(item => ({
         name: item.name,
         id: `d21d1+${item.id}`
       })),
       startDateTime: new Date().toISOString(),
-      endDateTime: new Date(endTime).toISOString()  
+      endDateTime: new Date(endTime).toISOString()
     };
 
     try {
@@ -73,11 +79,13 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
 
       const result = await response.json();
       console.log("✅ Poll started:", result);
-      emptyCart();
+
+      // Comment or remove this line to prevent emptying the cart
+      // emptyCart();
+
       setStatusType("success");
-      navigate("/polls")
+      navigate("/polls");
       setStatusMessage(`✅ Poll started successfully!`);
-      
 
       setTimeout(() => {
         setStatusMessage(null);
@@ -131,7 +139,7 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
             timeCaption="End Time"
             dateFormat="h:mm aa"
             minTime={getMinEndTime()}
-            maxTime={new Date(new Date().setHours(23, 59, 59, 999))}
+            maxTime={getMaxEndTime()}
             disabled={!startTime}
             popperPlacement="top"
             customInput={
