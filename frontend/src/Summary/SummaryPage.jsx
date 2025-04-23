@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Header from "../HomePage/components/HomeNavbar";
+import { HandHelping } from "lucide-react";
 
 const SummaryPage = () => {
     const { pollId } = useParams();
@@ -25,6 +26,24 @@ const SummaryPage = () => {
         fetchSummary();
     }, [pollId]);
 
+
+    // const handleArrivedAtOffice=async(name)=>{
+    //     console.log(name)
+    //     try {
+    //         const res = await fetch(`http://localhost:3000/api/poll/done/${name}`);
+    //         if (!res.ok) {
+    //             // throw new Error('Failed to send message');
+    //             toast.error("Failed to send message")
+    //         }else{
+    //             toast.success("Message had been sent to slack")
+    //         }
+            
+    //     } catch (err) {
+    //         console.error("Error fetching summary:", err);
+    //     }
+
+    // }
+
     if (!summary) return <p className="p-6 text-center text-gray-700">Loading...</p>;
 
     return (
@@ -45,36 +64,41 @@ const SummaryPage = () => {
                 </div>
 
                 <div className="space-y-4">
-                    {summary.options.map((opt, i) => (
-                        <div
-                            key={i}
-                            className="border p-5 rounded-xl shadow-md bg-white flex justify-between items-center transition transform hover:scale-105"
+                {summary.options.map((opt, i) => (
+                    <div
+                    key={i}
+                    className="border p-5 rounded-xl shadow-md bg-white flex justify-between items-center transition transform hover:scale-105"
+                    >
+                    <div>
+                        <p className="text-xl font-semibold text-gray-800">{opt.name}</p>
+                        <p className="text-lg font-bold text-green-600">{opt.vote_count} votes</p>
+                    </div>
+
+                    {/* only show buttons if opt.url is truthy */}
+                    {opt.url && (
+                        <div className="flex items-center">
+                        <a
+                            href={opt.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md ml-4"
                         >
-                            <div>
-                                <p className="text-xl font-semibold text-gray-800">{opt.name}</p>
-                                <p className="text-lg font-bold text-green-600">{opt.vote_count} votes</p>
-                            </div>
-                            <div className="flex items-center">
-                                <a
-                                    href={"https://www.swiggy.com/"} // fallback link
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md ml-4"
-                                >
-                                    Swiggy
-                                </a>
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => {
-                                        // Add the logic for Done button action
-                                    }}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition duration-200 shadow-md ml-4"
-                                >
-                                    Done
-                                </Button>
-                            </div>
+                            Swiggy
+                        </a>
+                        {/* <Button
+                            variant="secondary"
+                            onClick={() => {
+                            // Done button action
+                                handleArrivedAtOffice(opt.name)
+                            }}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition duration-200 shadow-md ml-4"
+                        >
+                            Arrived At Office
+                        </Button> */}
                         </div>
-                    ))}
+                    )}
+                    </div>
+                ))}
                 </div>
             </div>
         </>
