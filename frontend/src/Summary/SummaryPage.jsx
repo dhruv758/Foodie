@@ -54,14 +54,25 @@ const SummaryPage = () => {
                                 <p className="text-xl font-semibold text-gray-800">{opt.name}</p>
                                 <p className="text-lg font-bold text-green-600">{opt.vote_count} votes</p>
                             </div>
-                            <a
-                                href={"https://www.swiggy.com/"} // fallback link
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md ml-4"
-                            >
-                                Swiggy
-                            </a>
+                            <div className="flex items-center">
+                                <a
+                                    href={"https://www.swiggy.com/"} // fallback link
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md ml-4"
+                                >
+                                    Swiggy
+                                </a>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        // Add the logic for Done button action
+                                    }}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-600 transition duration-200 shadow-md ml-4"
+                                >
+                                    Done
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>

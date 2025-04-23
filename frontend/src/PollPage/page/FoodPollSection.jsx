@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Timer, CheckCheck, CalendarClock } from "lucide-react";
+import { Timer, CheckCheck, CalendarClock, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const FoodPollSection = () => {
   const [polls, setPolls] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [openDates, setOpenDates] = useState({});
   const navigate = useNavigate();
 
   const fetchPolls = async () => {
@@ -21,30 +22,51 @@ const FoodPollSection = () => {
     fetchPolls();
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 10000); // Refresh time every 10 sec
+    }, 10000);
     return () => clearInterval(timer);
   }, []);
 
-  const sortedPolls = [...polls].sort(
-    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  const scheduledPolls = polls.filter(
+    (p) => p.scheduleType === "schedule" && new Date(p.startDateTime) > currentTime
   );
 
-  const scheduledPolls = sortedPolls.filter(
-    (p) =>
-      p.scheduleType === "schedule" &&
-      new Date(p.startDateTime) > currentTime
-  );
-
-  const activePolls = sortedPolls.filter(
+  const activePolls = polls.filter(
     (p) =>
       new Date(p.startDateTime || p.created_at) <= currentTime &&
       new Date(p.endDateTime) > currentTime &&
       !p.isClosed
   );
 
-  const donePolls = sortedPolls.filter(
+  const donePolls = polls.filter(
     (p) => new Date(p.endDateTime) <= currentTime || p.isClosed
   );
+
+  // Group done polls by date (latest first)
+  const donePollGroups = Object.entries(
+    donePolls
+      .sort((a, b) => new Date(b.endDateTime) - new Date(a.endDateTime))
+      .reduce((acc, poll) => {
+        const dateKey = new Date(poll.endDateTime).toDateString();
+        acc[dateKey] = acc[dateKey] || [];
+        acc[dateKey].push(poll);
+        return acc;
+      }, {})
+  );
+
+  // Open the latest date by default on initial load
+  useEffect(() => {
+    if (donePollGroups.length > 0) {
+      const [latestDate] = donePollGroups[0];
+      setOpenDates({ [latestDate]: true });
+    }
+  }, [polls]);
+
+  const toggleDate = (date) => {
+    setOpenDates((prev) => ({
+      ...prev,
+      [date]: !prev[date],
+    }));
+  };
 
   const getCardStyle = (status) => {
     const styles = {
@@ -78,7 +100,6 @@ const FoodPollSection = () => {
           status
         )} cursor-pointer h-fit`}
       >
-        {/* Date left, Time right */}
         <div className="flex justify-between mb-2">
           <p className="text-l text-gray-800 font-semibold">
             {formatDate(poll.endDateTime)}
@@ -87,8 +108,6 @@ const FoodPollSection = () => {
             {formatTime(poll.endDateTime)}
           </p>
         </div>
-
-        {/* White inner box */}
         <div className="bg-white rounded-lg px-6 py-5 shadow border border-gray-200">
           <p className="text-black font-medium text-base mb-4">
             {messageMap[status]}
@@ -155,20 +174,37 @@ const FoodPollSection = () => {
         )}
       </div>
 
-      {/* Done Polls */}
+      {/* Done Polls with Accordion */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <CheckCheck className="h-5 w-5 text-[#B71C1C]" />
           <h2 className="text-xl font-bold text-[#B71C1C]">Done</h2>
         </div>
-        {donePolls.length > 0 ? (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 space-y-8">
-            {donePolls.map((poll) => (
-              <div key={poll._id} className="break-inside-avoid">
-                {renderPollCard(poll, "closed")}
+        {donePollGroups.length > 0 ? (
+          donePollGroups.map(([date, polls]) => (
+            <div key={date} className="mb-6">
+              <div
+                onClick={() => toggleDate(date)}
+                className="flex items-center justify-between cursor-pointer bg-gray-100 px-4 py-3 rounded-md shadow"
+              >
+                <h3 className="text-lg font-semibold text-gray-700">{date}</h3>
+                {openDates[date] ? (
+                  <ChevronUp className="w-5 h-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-600" />
+                )}
               </div>
-            ))}
-          </div>
+              {openDates[date] && (
+                <div className="flex flex-wrap gap-6 mt-4">
+                  {polls.map((poll) => (
+                    <div key={poll._id} className="w-full sm:w-[48%] lg:w-[30%]">
+                      {renderPollCard(poll, "closed")}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))
         ) : (
           <p className="text-black font-semibold text-lg">
             The voting lines are still active.
