@@ -121,7 +121,7 @@ const createInstantPoll = async (req, res) => {
 
     // ✅ Validate core fields
     if (!question || !choices || choices.length === 0 || !endDateTime) {
-      console.log("23")
+      
       return res.status(400).json({ message: "Required fields missing." });
     }
 
@@ -144,6 +144,7 @@ const createInstantPoll = async (req, res) => {
       url: choice.url,
       vote_count: 0,
     }));
+    console.log(options)
 
     const poll = new ScheduledPoll({
       question,

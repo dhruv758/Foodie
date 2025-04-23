@@ -52,10 +52,19 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
 
     const pollData = {
       question: "Food Poll",
-      choices: cartItems.map(item => ({
-        name: item.name,
-        id: `d21d1+${item.id}`
-      })),
+      choices: cartItems.map(item => {
+        // build the URL-safe restaurant name
+        const urlName = item.restaurant
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+    
+        return {
+          // if you really want a backslash, use '\\', otherwise use '/' or whatever separator you prefer
+          name: `${item.name} / ${item.restaurant}`,
+          id: `d21d1+${item.id}`,
+          url: `https://www.swiggy.com/city/noida-1/${urlName}-rest${item.restaurantId}`
+        };
+      }),
       startDateTime: new Date().toISOString(),
       endDateTime: new Date(endTime).toISOString()
     };
@@ -81,7 +90,7 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
       console.log("✅ Poll started:", result);
 
       // Comment or remove this line to prevent emptying the cart
-      // emptyCart();
+      emptyCart();
 
       setStatusType("success");
       navigate("/polls");

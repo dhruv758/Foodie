@@ -225,6 +225,11 @@ const handleCartAction = (item) => {
       "Restaurant";
       
     console.log("Using restaurant name:", restaurantName);
+
+    const url = new URL(window.location.href);
+    const pathname = url.pathname; 
+    const parts = pathname.split('/');
+    const restaurantId = parts[2]; 
     
     addToCart({
       id: item.id,
@@ -232,7 +237,8 @@ const handleCartAction = (item) => {
       price: item.price / 100 || item.defaultPrice / 100 || item.finalPrice / 100,
       image: item.imageId ? `https://media-assets.swiggy.com/swiggy/image/upload/${item.imageId}` : null,
       quantity: 1,
-      restaurant: restaurantName
+      restaurant: restaurantName,
+      restaurantId
     });
   }
 };
