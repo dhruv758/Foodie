@@ -51,7 +51,7 @@ app.listen(PORT, () => {
 });
 
 const { startSlackApp } = require("./slack/app");
-startSlackApp(); // Start Slack bot
+// startSlackApp(); // Start Slack bot
 
 
 
