@@ -134,11 +134,14 @@ function PollPage() {
       return;
     } 
 
+    // Only validate start time if "Schedule" is selected
+  if (scheduleType === "schedule") {
     var startTimestamp = startDateandTime.valueOf(); // Convert to milliseconds
     if(startTimestamp < Date.now()){
-      toast.error("start date must not precede the current date and time.");
+      toast.error("Start date must not precede the current date and time.");
       return;
     } 
+  }
 
     // Additional validation for recurring polls
     if (recurringType === "recurring" && selectedDays.length === 0) {
