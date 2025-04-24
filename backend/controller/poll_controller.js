@@ -2,6 +2,12 @@ const cron = require("node-cron");
 const dayjs = require("dayjs");
 const ScheduledPoll = require("../model/poll_model");
 const { sendPollToSlack } = require("../utils/slack");
+const { WebClient } = require('@slack/web-api');
+require('dotenv').config();
+
+const slackToken = process.env.SLACK_BOT_TOKEN;
+const slackChannelId = process.env.SLACK_CHANNEL;
+const web = new WebClient(slackToken);
 
 const createPoll = async (req, res) => {
   try {
@@ -188,7 +194,34 @@ const createInstantPoll = async (req, res) => {
   }
 };
 
+const handleArrival = async (req, res) => {
+  const {name} = req.body;
+
+  if (!name) {
+    return res.status(400).json({ success: false, error: 'Name is required' });
+  } 
+
+  try {
+    const result = await web.chat.postMessage({
+      channel: slackChannelId,
+      text: `🏢 *${name}* has arrived at the office!`,
+    });
+    console.log(result);
+
+    if (result.ok) {
+      return res.status(200).json({ success: true, message: 'Message sent to Slack' });
+    } else {
+      return res.status(500).json({ success: false, error: result.error });
+    }
+  } catch (error) {
+    console.error('Slack send error:', error.message);
+    return res.status(500).json({ success: false, error: 'Failed to send message to Slack' });
+  }
+};
+
+
 module.exports = {
   createPoll,
-  createInstantPoll
+  createInstantPoll,
+  handleArrival
 };
