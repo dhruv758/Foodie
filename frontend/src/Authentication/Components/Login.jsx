@@ -16,7 +16,6 @@ export default function Login() {
   const [credential, setCredential] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
-
   useEffect(()=>{
     const isAuthenticated = localStorage.getItem('auth');
     
@@ -24,7 +23,6 @@ export default function Login() {
       navigate("/home")
     }
   },[])
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +62,7 @@ export default function Login() {
 
   const handleEmailInput = (e) => {
     const emailValue = e.target.value;
-    setCredential((prev) => ({ ...prev, email: emailValue })); // ispe try to use email in both value
+    setCredential((prev) => ({ ...prev, email: emailValue }));
   };
 
   const handlePasswordinput = (e) => {
@@ -72,21 +70,20 @@ export default function Login() {
     setCredential((prev) => ({ ...prev, password: passwordValue }));
   };
 
-
-
-
-
- 
   return (
     <div className="flex flex-col items-center w-full">
       <ToastContainer />
-      <img src={logo} alt="" className="h-10 w-48 mb-6" />
+      {/* Logo only visible on small screens since it's hidden in parent component */}
+      <div className="sm:hidden mb-6">
+        <img src={logo} alt="" className="h-10 w-48" />
+      </div>
+      
       {/* Welcome text */}
       <h2 className="text-2xl font-semibold mb-8">Welcome</h2>
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 w-80 max-w-md"
+        className="flex flex-col gap-4 w-full sm:w-80 max-w-md px-4 sm:px-0"
       >
         {/* Email input */}
         <div className="relative w-full">
@@ -151,7 +148,7 @@ export default function Login() {
       </form>
 
       {/* Registration section */}
-      <div className="mt-4 w-full text-center">
+      <div className="mt-4 w-full text-center px-4 sm:px-0">
         <p className="text-sm">Have no account yet?</p>
         <NavLink to="/register">
           <button className="w-full cursor-pointer h-10 mt-2 border border-[#1ac073] text-[#1ac073] rounded-lg hover:bg-green-50">
