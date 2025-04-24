@@ -21,7 +21,6 @@ cron.schedule("*/1 * * * *", async () => {
     for (const poll of polls) {
       // Optional: avoid sending multiple times in a day
       if (poll.lastSentAt && dayjs(poll.lastSentAt).isSame(now, "day")) {
-        continue; // already sent today
       }
 
       console.log(`🔁 Sending recurring poll [${poll._id}] on ${today}...`);

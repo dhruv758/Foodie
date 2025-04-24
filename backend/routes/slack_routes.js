@@ -5,17 +5,20 @@ const Poll = require("../model/poll_model");
 
 router.post("/interact", express.urlencoded({ extended: true }), async (req, res) => {
   try {
-
-    console.log("dqwdqw")
     const payload = JSON.parse(req.body.payload);
     const { user, actions, trigger_id } = payload;
 
-    // 📊 View Responses
+    // 📊 View Responses Modal
     if (actions[0].action_id === "view_votes") {
       const { pollId } = JSON.parse(actions[0].value);
       const poll = await Poll.findById(pollId);
 
-      // Group votes by option
+      if (!poll) {
+        console.error("❌ Poll not found for ID:", pollId);
+        return res.status(404).send("Poll not found");
+      }
+
+      const totalVotes = poll.votes.length || 1;
       const voteMap = {};
       for (const option of poll.options) {
         voteMap[option.name] = [];
@@ -31,13 +34,16 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
           type: "section",
           text: { type: "mrkdwn", text: `📊 *${poll.question}* — *Results*` },
         },
-        ...poll.options.map(opt => ({
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `*${opt.name}* (${opt.vote_count || 0} votes)\n${voteMap[opt.name]?.join("\n") || "_No votes yet_"}`,
-          },
-        })),
+        ...poll.options.map(opt => {
+          const percentage = ((opt.vote_count / totalVotes) * 100).toFixed(1);
+          return {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*${opt.name}*\n${opt.vote_count} vote${opt.vote_count !== 1 ? "s" : ""} • ${percentage}%\n${voteMap[opt.name]?.join("\n") || "_No votes yet_"}`,
+            },
+          };
+        }),
       ];
 
       await axios.post("https://slack.com/api/views.open", {
@@ -58,14 +64,15 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
       return res.send();
     }
 
-    // 🗳️ Voting logic
-    const { value } = actions[0];
-    const data = JSON.parse(value);
-    const { pollId, choice, index } = data;
-
+    // 🗳️ Handle Vote
+    const { pollId, choice, index } = JSON.parse(actions[0].value);
     const poll = await Poll.findById(pollId);
 
-    // ❌ Poll closed check
+    if (!poll) {
+      console.error("❌ Poll not found for ID:", pollId);
+      return res.status(404).send("Poll not found");
+    }
+
     const now = new Date();
     if (poll.isClosed || (poll.endDateTime && now > new Date(poll.endDateTime))) {
       return res.send({
@@ -77,7 +84,6 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
     const existingVote = poll.votes.find(v => v.user_id === user.id);
     let changedVote = false;
 
-    // Decrease old vote count if changed
     if (existingVote) {
       if (existingVote.choice === choice) {
         return res.send({
@@ -102,7 +108,6 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
       });
     }
 
-    // Increment new vote count
     const selectedOption = poll.options.find(opt => opt.name === choice);
     if (selectedOption) {
       selectedOption.vote_count = (selectedOption.vote_count || 0) + 1;
@@ -110,15 +115,21 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
 
     await poll.save();
 
-    // Create updated poll blocks with vote counts
-    const buttonBlock = {
-      type: "actions",
-      elements: [
-        ...poll.options.map((opt, i) => ({
+    const totalVotes = poll.votes.length || 1;
+
+    const optionBlocks = poll.options.map((opt, i) => {
+      const percentage = ((opt.vote_count / totalVotes) * 100).toFixed(1);
+      return {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${opt.name}*\n${opt.vote_count} vote${opt.vote_count !== 1 ? "s" : ""} • ${percentage}%`,
+        },
+        accessory: {
           type: "button",
           text: {
             type: "plain_text",
-            text: `${opt.name} (${opt.vote_count || 0})`,
+            text: "Vote",
             emoji: true,
           },
           value: JSON.stringify({
@@ -127,15 +138,9 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
             index: i,
           }),
           action_id: `vote_${i}`,
-        })),
-        {
-          type: "button",
-          text: { type: "plain_text", text: "📊 View Responses" },
-          value: JSON.stringify({ pollId }),
-          action_id: "view_votes",
         },
-      ],
-    };
+      };
+    });
 
     const closingTime = new Date(poll.endDateTime).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
@@ -152,7 +157,18 @@ router.post("/interact", express.urlencoded({ extended: true }), async (req, res
         type: "section",
         text: { type: "mrkdwn", text: `📊 *${poll.question}*` },
       },
-      buttonBlock,
+      ...optionBlocks,
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: { type: "plain_text", text: "📊 View Responses" },
+            value: JSON.stringify({ pollId }),
+            action_id: "view_votes",
+          },
+        ],
+      },
       {
         type: "context",
         elements: [
