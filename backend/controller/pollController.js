@@ -1,7 +1,4 @@
-const { slackApp } = require("../slack/app");
-const { Poll } = require("../model/pollModel");
 const { v4: uuidv4 } = require("uuid");
-const { closePoll } = require("./closePoll");
 const ScheduledPoll = require("../model/poll_model");
 
 
