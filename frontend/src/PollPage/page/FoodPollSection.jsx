@@ -32,7 +32,7 @@ const FoodPollSection = () => {
 
   const activePolls = polls.filter(
     (p) =>
-      new Date(p.startDateTime || p.created_at) <= currentTime &&
+      new Date(p.startDateTime || p.createdAt) <= currentTime &&
       new Date(p.endDateTime) > currentTime &&
       !p.isClosed
   );
@@ -41,7 +41,6 @@ const FoodPollSection = () => {
     (p) => new Date(p.endDateTime) <= currentTime || p.isClosed
   );
 
-  // Group done polls by date (latest first)
   const donePollGroups = Object.entries(
     donePolls
       .sort((a, b) => new Date(b.endDateTime) - new Date(a.endDateTime))
@@ -53,7 +52,6 @@ const FoodPollSection = () => {
       }, {})
   );
 
-  // Open the latest date by default on initial load
   useEffect(() => {
     if (donePollGroups.length > 0) {
       const [latestDate] = donePollGroups[0];
@@ -89,25 +87,60 @@ const FoodPollSection = () => {
       active: "What do you want to order?",
       closed: "Now you can order",
     };
-
+  
+    const handleDeletePoll = async (pollId) => {
+      if (!window.confirm("Are you sure you want to delete this poll?")) return;
+  
+      try {
+        const res = await fetch(`http://localhost:3000/api/polls/delete/${pollId}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Poll deleted successfully!");
+          fetchPolls();
+        } else {
+          alert("Failed to delete poll.");
+        }
+      } catch (err) {
+        console.error("Error deleting poll:", err);
+        alert("An error occurred while deleting poll.");
+      }
+    };
+  
     return (
       <div
         key={poll._id}
         onClick={() =>
           status === "closed" ? navigate(`/summary/${poll._id}`) : null
         }
-        className={`rounded-2xl p-4 shadow-lg border ${getCardStyle(
-          status
-        )} cursor-pointer h-fit`}
+        className={`rounded-2xl p-4 shadow-lg border ${getCardStyle(status)} cursor-pointer h-fit relative`}
       >
-        <div className="flex justify-between mb-2">
-          <p className="text-l text-gray-800 font-semibold">
-            {formatDate(poll.endDateTime)}
-          </p>
-          <p className="text-l text-gray-800 font-semibold">
-            {formatTime(poll.endDateTime)}
-          </p>
+        {/* Updated Header: Date, Time, Delete Button */}
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex flex-col">
+            <p className="text-l text-gray-800 font-semibold">
+              {formatDate(poll.endDateTime)}
+            </p>
+            <p className="text-l text-gray-800 font-semibold">
+              {formatTime(poll.endDateTime)}
+            </p>
+          </div>
+
+          {/* 🗑️ Delete Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeletePoll(poll._id);
+            }}
+            className="text-red-600 hover:text-red-800 bg-white rounded-full p-1 shadow w-8 h-8 flex items-center justify-center ml-2"
+            title="Delete Poll"
+          >
+            🗑️
+          </button>
         </div>
+
+        {/* Poll Content */}
         <div className="bg-white rounded-lg px-6 py-5 shadow border border-gray-200">
           <p className="text-black font-medium text-base mb-4">
             {messageMap[status]}
@@ -129,6 +162,7 @@ const FoodPollSection = () => {
       </div>
     );
   };
+  
 
   return (
     <div className="flex flex-col gap-12 mt-10">
@@ -174,7 +208,7 @@ const FoodPollSection = () => {
         )}
       </div>
 
-      {/* Done Polls with Accordion */}
+      {/* Done Polls */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <CheckCheck className="h-5 w-5 text-[#B71C1C]" />
