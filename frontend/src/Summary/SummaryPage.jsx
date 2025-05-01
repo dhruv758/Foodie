@@ -36,6 +36,14 @@ const SummaryPage = () => {
   }, [pollId]);
 
   const handleArrivedAtOffice = async (name) => {
+    // Add confirmation dialog
+    const isConfirmed = window.confirm(`Are you sure "${name}" has arrived at the office?`);
+    
+    // Only proceed if user confirmed
+    if (!isConfirmed) {
+      return; // Exit the function if user cancels
+    }
+    
     try {
       const res = await fetch("http://localhost:3000/done", {
         method: "POST",
@@ -109,7 +117,7 @@ const SummaryPage = () => {
                     variant="secondary"
                     onClick={() => handleArrivedAtOffice(opt.name)}
                     disabled={clickedNames.includes(opt.name)}
-                    className={`w-full sm:w-auto text-sm sm:text-base px-4 py-2 rounded-full font-semibold shadow-md transition duration-200 ${
+                    className={`w-full sm:w-auto text-sm cursor-pointer sm:text-base px-4 py-2 rounded-full font-semibold shadow-md transition duration-200 ${
                       clickedNames.includes(opt.name)
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : "bg-blue-500 text-white hover:bg-blue-600"
