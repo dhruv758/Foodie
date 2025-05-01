@@ -13,6 +13,19 @@ function UserInfo() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Load selectedUsers from localStorage on mount
+  useEffect(() => {
+    const savedUsers = localStorage.getItem(`selectedUsers_${pollId}`);
+    if (savedUsers) {
+      setSelectedUsers(JSON.parse(savedUsers));
+    }
+  }, [pollId]);
+
+  // Save selectedUsers to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(`selectedUsers_${pollId}`, JSON.stringify(selectedUsers));
+  }, [selectedUsers, pollId]);
+
   useEffect(() => {
     const fetchVoterData = async () => {
       try {
@@ -22,16 +35,16 @@ function UserInfo() {
           throw new Error('Failed to fetch voter data');
         }
         const data = await response.json();
-        
+
         const formattedDishes = data.map(dish => ({
           id: dish.id,
           name: dish.name,
-          users: dish.users
+          users: dish.users,
         }));
-        
+
         setDishes(formattedDishes);
         setLoading(false);
-        
+
         if (formattedDishes.length > 0 && !selectedDish) {
           setSelectedDish(formattedDishes[0].id);
         }
@@ -50,11 +63,17 @@ function UserInfo() {
   const selectedDishData = dishes.find((dish) => dish.id === selectedDish);
 
   const handleSelectionChange = (newSelectedUsers) => {
-    setSelectedUsers(prev => {
+    setSelectedUsers((prev) => {
       const updatedSelection = newSelectedUsers.reduce((acc, user) => {
-        return acc.includes(user) 
-          ? acc.filter(selectedUser => selectedUser !== user)
-          : [...acc, user];
+        // Check if user is already in the selection by user_id
+        const isSelected = acc.some((selectedUser) => selectedUser.user_id === user.user_id);
+        if (isSelected) {
+          // Remove user if already selected (untick)
+          return acc.filter((selectedUser) => selectedUser.user_id !== user.user_id);
+        } else {
+          // Add user if not selected
+          return [...acc, user];
+        }
       }, prev);
       return updatedSelection;
     });
@@ -95,13 +114,13 @@ function UserInfo() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header/>
+      <Header />
 
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-black">User Voting Information</h1>
         </div>
-        
+
         <div className="mb-8">
           <DishList dishes={dishes} selectedDish={selectedDish} setSelectedDish={setSelectedDish} />
         </div>
@@ -109,15 +128,12 @@ function UserInfo() {
         {selectedDishData && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
-              <EmployeeCountDisplay 
-                dishes={dishes}
-                selectedUsers={selectedUsers} 
-              />
+              <EmployeeCountDisplay dishes={dishes} selectedUsers={selectedUsers} />
             </div>
 
             <div className="md:col-span-2">
-              <DishDetails 
-                selectedDishData={selectedDishData} 
+              <DishDetails
+                selectedDishData={selectedDishData}
                 onSelectionChange={handleSelectionChange}
                 selectedUsers={selectedUsers}
               />
