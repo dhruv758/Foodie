@@ -1,4 +1,5 @@
 const cron = require("node-cron");
+const axios = require('axios');
 const dayjs = require("dayjs");
 const ScheduledPoll = require("../model/poll_model");
 const { sendPollToSlack } = require("../utils/slack");
@@ -218,10 +219,60 @@ const handleArrival = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to send message to Slack' });
   }
 };
+const deletePoll = async (req, res) => {
+  try {
+    const { pollId } = req.params;
+    if (!pollId) {
+      return res.status(400).json({ success: false, message: "Poll ID is required." });
+    }
+
+    const poll = await ScheduledPoll.findById(pollId);
+    if (!poll) {
+      return res.status(404).json({ success: false, message: "Poll not found." });
+    }
+
+    const slackToken = process.env.SLACK_BOT_TOKEN;
+    const slackChannel = poll.slackChannel;
+    const slackTs = poll.slackTs;
+
+    if (slackChannel && slackTs) {
+      const deleteResponse = await axios.post(
+        'https://slack.com/api/chat.delete',
+        {
+          channel: slackChannel,
+          ts: slackTs,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${slackToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!deleteResponse.data.ok) {
+        console.error("Slack delete failed:", deleteResponse.data.error);
+      } else {
+        console.log("Slack message deleted.");
+      }
+    } else {
+      console.warn("No Slack message info available. Skipping Slack delete.");
+    }
+
+    await ScheduledPoll.findByIdAndDelete(pollId);
+
+    return res.status(200).json({ success: true, message: "Poll deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting poll:", error.message);
+    return res.status(500).json({ success: false, message: "Server error deleting poll." });
+  }
+};
+
 
 
 module.exports = {
   createPoll,
   createInstantPoll,
-  handleArrival
+  handleArrival,
+  deletePoll,
 };

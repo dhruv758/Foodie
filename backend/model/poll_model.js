@@ -42,6 +42,8 @@ const ScheduledPollSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  slackTs: { type: String },
+ slackChannel: { type: String },
   votes: [
     {
       user_id: { type: String, required: true },

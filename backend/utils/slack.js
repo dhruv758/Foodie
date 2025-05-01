@@ -1,28 +1,22 @@
 const axios = require("axios");
+const ScheduledPoll = require("../model/poll_model"); // import model to save ts and channel
 
 const sendPollToSlack = async (poll) => {
   try {
-    const webhookUrl = process.env.SLACK_WEBHOOK_URL;
     const token = process.env.SLACK_BOT_TOKEN;
     const channel = process.env.SLACK_CHANNEL;
 
-    if (!webhookUrl) {
-      throw new Error("SLACK_WEBHOOK_URL is not set in environment variables.");
+    if (!token) {
+      throw new Error("SLACK_BOT_TOKEN is not set in environment variables.");
     }
 
-    // 🔕 Poll Closure Notification with real Slack notification
     if (poll.notifyOnly) {
       const totalVotes = poll.totalVotes || 0;
-
       const topOption = poll.options.reduce((a, b) =>
         (a.vote_count || 0) > (b.vote_count || 0) ? a : b
       );
-
       const resultBreakdown = poll.options
-        .map(
-          (opt) =>
-            `• *${opt.name}* — ${opt.vote_count || 0} vote${opt.vote_count !== 1 ? "s" : ""}`
-        )
+        .map((opt) => `• *${opt.name}* — ${opt.vote_count || 0} votes`)
         .join("\n");
 
       const payload = {
@@ -70,11 +64,11 @@ const sendPollToSlack = async (poll) => {
         },
       });
 
-      console.log("📢 Poll closure notification sent to Slack with push.");
+      console.log("📢 Poll closure notification sent to Slack via Bot API.");
       return;
     }
 
-    // 📊 Initial Poll Posting (via webhook)
+    // 📊 Initial Poll Posting (new polls)
     const optionBlocks = poll.options.map((option, index) => ({
       type: "section",
       text: {
@@ -113,6 +107,7 @@ const sendPollToSlack = async (poll) => {
     };
 
     const payload = {
+      channel,
       text: `Poll: ${poll.question}`,
       blocks: [
         {
@@ -127,8 +122,29 @@ const sendPollToSlack = async (poll) => {
       ],
     };
 
-    await axios.post(webhookUrl, payload);
-    console.log("✅ Sent interactive poll to Slack via webhook.");
+    const response = await axios.post("https://slack.com/api/chat.postMessage", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.data.ok) {
+      console.log("✅ Poll sent to Slack successfully.");
+
+      const { ts, channel } = response.data;
+
+      // 🔥 Save ts and channel to database for future deletion
+      await ScheduledPoll.findByIdAndUpdate(poll._id, {
+        slackTs: ts,
+        slackChannel: channel,
+      });
+
+      console.log("📌 Saved Slack message ts and channel to Poll DB.");
+    } else {
+      console.error("❌ Slack API error:", response.data.error);
+    }
+
   } catch (error) {
     console.error("❌ Error sending poll to Slack:", error.response?.data || error.message);
   }
