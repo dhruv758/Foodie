@@ -29,7 +29,7 @@ export default function Login() {
     console.log("Login with:", credential.email, credential.password);
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
