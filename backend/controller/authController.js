@@ -1,4 +1,4 @@
-const { comparePassword, bcryptPassword } = require("../middlewares/authPasswordmiddleware");
+const { comparePassword, bcryptPassword } = require("../middlewares/authPasswordMiddleware");
 const express = require("express")
 const jwt = require("jsonwebtoken");
 const axios = require("axios")
