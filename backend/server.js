@@ -45,7 +45,7 @@ app.use("/api", pollRoutes);
 
 
 const PORT = process.env.PORT || 8080;
-a
+
 app.get("/", (req, res) => {
     res.send("Server is running");
   });
