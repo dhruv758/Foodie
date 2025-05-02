@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 
 
-export default function VerifyOtp({email , onForgotButtonClick}) {
+export default function VerifyOtp({email , onForgotButtonClick,setEmail}) {
   const [otp, setOtp] = useState("");
-
-
-
 
 const handleSubmit = async(e) => {
     e.preventDefault();
@@ -14,7 +11,7 @@ const handleSubmit = async(e) => {
     }
     
     try {
-        const response = await fetch("http://localhost:3000/verify-otp", {
+        const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/verify-otp`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -34,14 +31,14 @@ const handleSubmit = async(e) => {
     }
 
     console.log("Reset password for:", email);
-    setEmailid(email);
+    setEmail(email);
     onForgotButtonClick(); // Move to the next screen
 
   };
   const handleResendOtpClick = async()=>{
     
     try {
-        const response = await fetch("http://localhost:3000/send-otp", {
+        const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/send-otp`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

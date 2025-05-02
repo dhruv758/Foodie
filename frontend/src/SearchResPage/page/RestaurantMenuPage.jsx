@@ -29,7 +29,7 @@ const RestaurantMenuPage = () => {
         console.log("Fetching menu for restaurant ID:", restaurantId);
         const name = searchParams.get("name");
         // Get the menu items from your backend API
-        const response = await axios.get(`http://localhost:3000/api/swiggy/menu?restaurantId=${restaurantId}&name=${name}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/swiggy/menu?restaurantId=${restaurantId}&name=${name}`);
         console.log("API response:", response.data);
         
         if (response.data) {
@@ -433,7 +433,7 @@ const handleCartAction = (item) => {
               <div key={index} className="border-b pb-6">
                 <h3 className="text-lg font-medium mb-4">{categoryTitle}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {categoryItems.map((item, itemIndex) => {
+                  {categoryItems.map((item) => {
                     // Extract the dish info from the nested structure
                     const itemInfo = item?.card?.info;
                     if (!itemInfo) return null;

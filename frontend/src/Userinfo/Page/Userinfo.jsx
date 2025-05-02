@@ -30,7 +30,7 @@ function UserInfo() {
     const fetchVoterData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3000/api/poll/${pollId}/voters`);
+        const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/poll/${pollId}/voters`);
         if (!response.ok) {
           throw new Error('Failed to fetch voter data');
         }

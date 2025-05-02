@@ -118,7 +118,7 @@ export default function Register() {
       //     password: credential.password,
       //   }),
       // });
-      const response = await fetch("http://localhost:3000/register-verify", {
+      const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/register-verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

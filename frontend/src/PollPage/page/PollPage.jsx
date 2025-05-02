@@ -150,7 +150,8 @@ function PollPage() {
     }
   
     try {
-      await axios.post("http://localhost:3000/api/polls/create", {
+      //fix
+      await axios.post(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/polls/create`, {
         question,
         choices,
         scheduleType,

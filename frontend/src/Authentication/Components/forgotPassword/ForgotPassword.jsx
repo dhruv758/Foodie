@@ -35,6 +35,7 @@ export default function ForgotPassword () {
         <VerifyOtp
           onForgotButtonClick={() => handleScreenChange("NewPassword")}
           email = {email}
+          setEmail={setEmail}
         />
       )}
       {currentScreen === "NewPassword" && (

@@ -15,7 +15,7 @@ const SummaryPage = () => {
     const fetchSummary = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/poll/summary/${pollId}`
+          `${import.meta.env.VITE_API_PRODUCTOION_URL}/api/poll/summary/${pollId}`
         );
         if (!res.ok) {
           throw new Error("Failed to fetch summary");
@@ -45,7 +45,7 @@ const SummaryPage = () => {
     }
     
     try {
-      const res = await fetch("http://localhost:3000/done", {
+      const res = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/done`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

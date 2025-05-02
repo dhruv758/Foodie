@@ -10,7 +10,7 @@ const FoodPollSection = () => {
 
   const fetchPolls = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/poll/all");
+      const res = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/poll/all`);
       const data = await res.json();
       setPolls(data);
     } catch (err) {
@@ -92,7 +92,7 @@ const FoodPollSection = () => {
       if (!window.confirm("Are you sure you want to delete this poll?")) return;
   
       try {
-        const res = await fetch(`http://localhost:3000/api/polls/delete/${pollId}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/polls/delete/${pollId}`, {
           method: "DELETE",
         });
         const data = await res.json();
