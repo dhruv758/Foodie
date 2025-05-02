@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 async function sendOTPEmail(email, otp) {
     try {
       const mailOptions = {
-        from: 'priyanshugupta.112002@gmail.com',
+        from: 'process.env.email',
         to: email,
         subject: 'Your OTP for Registration',
         text: `Your OTP is: ${otp}`,
@@ -53,7 +53,7 @@ async function sendOTPEmail(email, otp) {
           const mailOptions = {
             from:process.env.email,
             to: process.env.authEmail,
-            subject: "Permission for a new user wants to register",
+            subject: "Request for Approval: New User Registration for Foodie App",
             html: customizedTemplate,
           };
 

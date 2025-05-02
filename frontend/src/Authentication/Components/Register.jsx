@@ -53,13 +53,13 @@ export default function Register() {
     }
   
     // Rule 3: Must end with a valid domain
-    const allowedDomains = ['@corevaluetech.com', '@concirus.com'];
+    const allowedDomains = ['@corevaluetech.com', '@concirrus.com'];
     const isValidDomain = allowedDomains.some((domain) =>
       email.toLowerCase().endsWith(domain)
     );
   
     if (email && !isValidDomain) {
-      console.error("❌ Email must end with @corevaluetech.com or @concirus.com.");
+      console.error("❌ Email must end with @corevaluetech.com or @concirrus.com.");
       isValid = false;
     }
   
@@ -87,10 +87,10 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(!emailCheck || !passwordCheck){
-        toast.error("Improper cred")
-        return
-    }
+    // if(!emailCheck || !passwordCheck){
+    //     toast.error("Improper cred")
+    //     return
+    // }
 
     if (credential.password !== credential.confirmPassword) {
       toast.error("Passwords do not match");
@@ -110,15 +110,34 @@ export default function Register() {
     }
 
     try {
+      // const response = await fetch("http://localhost:3000/register-verify", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     email: credential.email,
+      //     password: credential.password,
+      //   }),
+      // });
       const response = await fetch("http://localhost:3000/register-verify", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           email: credential.email,
           password: credential.password,
         }),
-      });
-      if (!response.ok) throw new Error("Network response was not ok");
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Response:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+      
+      
+      // if (!response.ok) throw new Error("Network response was not ok");
       const data = await response.json();
       console.log("Registration successful:", data);
       setCredential({ email: "", password: "", confirmPassword: "" });

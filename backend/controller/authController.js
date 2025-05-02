@@ -20,6 +20,8 @@ function generateOTP() {
 
 // Register Controller
 exports.registerVerifyController = async (req, res) => {
+  console.log("Register Verify Controller");
+  // console.log(req.body);
   try {
     const { email, password } = req.body;
 
@@ -238,7 +240,7 @@ exports.loginController = async (req, res) => {
   exports.verifyOtpController = async(req,res)=>{
 
     const{otp , email}= req.body;
-    console.log(req.body);
+    // console.log(req.body);
       // Check if email and OTP are provided
       if (!email || !otp) {
         return res.status(400).json({ error: "Email and OTP are required." });
@@ -250,7 +252,7 @@ exports.loginController = async (req, res) => {
         if (!user) {
           return res.status(404).json({ error: "User not found." });
         }
-        console.log(user);
+        // console.log(user);
         // Verify the OTP stored in the database against the one provided
         if (user.otp != otp) {
           return res.status(401).json({ error: "Invalid OTP." });
