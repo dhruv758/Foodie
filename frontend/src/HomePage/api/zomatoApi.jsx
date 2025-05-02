@@ -4,7 +4,7 @@ export const searchDish = async (searchInput) => {
   
     // const url = `https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.6280075&lng=77.3607098&collection=83633&tags=layout_CCS_${convertInputIntoLowercase}&sortBy=&filters=&type=rcv2&offset=0&page_type=null`
   try {
-    const response = await fetch("http://localhost:3000/api/swiggy", {
+    const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/swiggy`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -30,7 +30,7 @@ export const getRestauantSwigyData =async()=>{
 
 
   try {
-    const response = await fetch("http://localhost:3000/api/restauant/swiggy");
+    const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/restauant/swiggy`);
 
     if (!response.ok) {
       throw new Error("Network response was not ok");

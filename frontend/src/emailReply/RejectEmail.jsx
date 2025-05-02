@@ -13,7 +13,7 @@ const EmailReject = () => {
     const handle =async (email) => {
             try {
                 console.log(email);
-                const response = await fetch("http://localhost:3000/registration-rejected", {
+                const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/registration-rejected`, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",

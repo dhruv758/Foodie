@@ -70,7 +70,7 @@ const CartFooter = ({ cartItems, onPollInitiated }) => {
     };
 
     try {
-      const apiUrl = "http://localhost:3000/poll-start";
+      const apiUrl = `${import.meta.env.VITE_API_PRODUCTOION_URL}/poll-start`;
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {

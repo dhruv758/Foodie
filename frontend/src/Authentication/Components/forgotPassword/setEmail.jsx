@@ -11,7 +11,7 @@ export default function SetEmail({ setEmailid, onForgotButtonClick }) {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/send-otp", {
+      const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
