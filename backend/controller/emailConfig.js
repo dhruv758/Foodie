@@ -46,8 +46,8 @@ async function sendOTPEmail(email, otp) {
         // Replace placeholders in email template
         const customizedTemplate = emailTemplate
         .replace("{{email}}", email)
-        .replace("{{acceptUrl}}", `http://localhost:5173/approve-accept?user=${encodeURIComponent(email)}`)
-        .replace("{{rejectUrl}}", `http://localhost:5173/approve-reject?user=${encodeURIComponent(email)}`);
+        .replace("{{acceptUrl}}",  `${process.env.FRONTEND_URL}/approve-accept?user=${encodeURIComponent(email)}`)
+        .replace("{{rejectUrl}}", `${process.env.FRONTEND_URL}/approve-reject?user=${encodeURIComponent(email)}`);
 
           // Create email options
           const mailOptions = {
