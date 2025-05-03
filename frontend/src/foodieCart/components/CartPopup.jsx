@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import CartHeader from './CartHeader';
 import CartFooter from './CartFooter';
 import foodImage from '../../assets/noodle.png';
-import deleteIcon from '../../assets/delete-icon.png'; // ✅ Your trash icon
+import deleteIcon from '../../assets/delete-icon.png';
 
 const CartPopup = ({ cartItems, setCartItems, onClose }) => {
   const removeItem = (id) => {
@@ -18,8 +18,8 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="w-[773px] max-h-[648px] bg-white rounded-lg shadow-lg p-4 flex flex-col relative">
+    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm p-2 sm:p-4">
+      <div className="w-full max-w-[773px] max-h-[90vh] bg-white rounded-lg shadow-lg p-2 sm:p-4 flex flex-col relative mx-auto">
         <Button
           variant="ghost"
           size="icon"
@@ -34,16 +34,17 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
         {/* Always show the header */}
         <CartHeader itemCount={cartItems.length} />
 
-        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+        {/* Cart Items */}
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {cartItems.length > 0 ? (
             cartItems.map((item) => (
               <div
                 key={item.id}
                 className="w-full border border-gray-200 rounded-lg overflow-hidden"
               >
-                <div className="flex items-center p-4 h-[100px]">
-                  {/* Image */}
-                  <div className="mr-4 overflow-hidden rounded relative" style={{ width: '80px', height: '82.29px' }}>
+                <div className="flex items-center p-2 sm:p-4 min-h-[80px] sm:min-h-[100px]">
+                  {/* Image - smaller on mobile */}
+                  <div className="mr-2 sm:mr-4 overflow-hidden rounded relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                     <img
                       src={item.image || foodImage}
                       alt={item.name}
@@ -51,13 +52,13 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
                     />
                   </div>
 
-                  {/* Details */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg">{item.name}</h3>
+                  {/* Details - with responsive text */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                      <h3 className="font-semibold text-base sm:text-lg truncate">{item.name}</h3>
                     </div>
-                    <p className="text-gray-600 text-sm">By {item.restaurant}</p>
-                    <p className="text-black font-semibold text-sm mt-1">₹{item.price}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm truncate">By {item.restaurant}</p>
+                    <p className="text-black font-semibold text-xs sm:text-sm mt-1">₹{item.price}</p>
                   </div>
 
                   {/* Delete Button */}
@@ -65,14 +66,18 @@ const CartPopup = ({ cartItems, setCartItems, onClose }) => {
                     variant="ghost"
                     size="icon"
                     onClick={() => removeItem(item.id)}
-                    className="ml-4 hover:opacity-80"
+                    className="ml-1 sm:ml-4 hover:opacity-80 p-1 sm:p-2 flex-shrink-0"
                   >
-                    <img src={deleteIcon} alt="Delete" className="h-6 w-6" />
+                    <img src={deleteIcon} alt="Delete" className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Button>
                 </div>
               </div>
             ))
-          ) : null}
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Your cart is empty</p>
+            </div>
+          )}
         </div>
 
         {/* Always show the footer */}
