@@ -131,9 +131,10 @@ export default function Register() {
 
       setCredential({ email: "", password: "", confirmPassword: "" });
       
+      // Wait 2 seconds before navigating so toast shows up
       setTimeout(() => {
         navigate("/");
-      }, 4000);
+      }, 3000);
       
     } catch (error) {
       console.error("Error during registration:", error);

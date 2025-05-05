@@ -16,52 +16,50 @@ function generateOTP() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-
-
 // Register Controller
 exports.registerVerifyController = async (req, res) => {
-  console.log("Register Verify Controller");
-  // console.log(req.body);
   try {
     const { email, password } = req.body;
 
+    // Input validation
     if (!email || !password) {
       return res.status(400).json({ message: "Missing credentials" });
     }
 
-    // Check if user already exists
-    const userExist = await userSchema.findOne({ email });
+    // Check if user already exists in main or verify collection
+    const [userExist, verifyUserExist] = await Promise.all([
+      userSchema.findOne({ email }),
+      verifyUserSchema.findOne({ email }),
+    ]);
+
     if (userExist) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const verifyUserExist = await verifyUserSchema.findOne({ email })
     if (verifyUserExist) {
-      return res.status(400).json({ message: "Request already been sent to admin for approval" });
+      return res.status(400).json({ message: "Request already sent to admin for approval" });
     }
+
     // Hash password
     const hashedPassword = await bcryptPassword(password);
 
-    const user = new verifyUserSchema({ email, password: hashedPassword });
-  
-    // Send email before saving user
-    try {
-      await sendAuthorityEmail(user.email);
-      console.log("email sent successful");
+    // Prepare new user
+    const newUser = new verifyUserSchema({ email, password: hashedPassword });
 
-      // Only save user after email is sent successfully
-      await user.save();
+    // Send email before saving
+    await sendAuthorityEmail(email);
 
-      return res.status(200).json({ message: "User register Verification email sent." });
-    } catch (emailError) {
-      console.error("Error sending email:", emailError);
-      return res.status(500).json({ message: "Error sending email." });
-    }
+    // Save only after email is sent successfully
+    await newUser.save();
+
+    return res.status(200).json({ message: "Verification email sent for approval." });
+
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Error in registerVerifyController:", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 exports.approveUserController = async (req, res) => {
   try {
@@ -159,7 +157,7 @@ exports.loginController = async (req, res) => {
       }
       
       // Validate password
-      const isPasswordValid = comparePassword(password, user.password);
+      const isPasswordValid = await comparePassword(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid password" });
       }
