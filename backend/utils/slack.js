@@ -10,6 +10,21 @@ const sendPollToSlack = async (poll) => {
       throw new Error("SLACK_BOT_TOKEN is not set in environment variables.");
     }
 
+    const footerBlock = {
+      type: "actions",
+      elements: [
+        {
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: "📊 View Responses",
+          },
+          value: JSON.stringify({ pollId: poll._id }),
+          action_id: "view_votes",
+        },
+      ],
+    };
+
     if (poll.notifyOnly) {
       const totalVotes = poll.totalVotes || 0;
       const topOption = poll.options.reduce((a, b) =>
@@ -38,22 +53,7 @@ const sendPollToSlack = async (poll) => {
               text: `🔒 *${poll.question}* has now closed.\n\n🥇 *Top Choice:* ${topOption.name}`,
             },
           },
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `📊 *Final Results:*\n${resultBreakdown}`,
-            },
-          },
-          {
-            type: "context",
-            elements: [
-              {
-                type: "mrkdwn",
-                text: `✅ *Total Votes:* ${totalVotes}`,
-              },
-            ],
-          },
+          footerBlock,
         ],
       };
 
@@ -90,21 +90,6 @@ const sendPollToSlack = async (poll) => {
         action_id: `vote_${index}`,
       },
     }));
-
-    const footerBlock = {
-      type: "actions",
-      elements: [
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "📊 View Responses",
-          },
-          value: JSON.stringify({ pollId: poll._id }),
-          action_id: "view_votes",
-        },
-      ],
-    };
 
     const payload = {
       channel,
