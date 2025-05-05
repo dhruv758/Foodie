@@ -83,69 +83,64 @@ export default function Register() {
   
     return isValid;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if(!emailCheck || !passwordCheck){
-    //     toast.error("Improper cred")
-    //     return
-    // }
-
+  
     if (credential.password !== credential.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
-
+  
     const check1 = emailCheck(credential.email);
-    const check2 = passwordCheck(credential.password)
-
-    if(!check1 ){
-      toast.error("email is not valid for register")
-      return
+    const check2 = passwordCheck(credential.password);
+  
+    if (!check1) {
+      toast.error("Email is not valid for registration");
+      return;
     }
-    if(!check2 ){
-      toast.error("password is not valid for register")
-      return
+  
+    if (!check2) {
+      toast.error("Password is not valid for registration");
+      return;
     }
-
+  
     try {
-      // const response = await fetch("http://localhost:3000/register-verify", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     email: credential.email,
-      //     password: credential.password,
-      //   }),
-      // });
-      const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/register-verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: credential.email,
-          password: credential.password,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Response:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-      
-      
-      // if (!response.ok) throw new Error("Network response was not ok");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_PRODUCTOION_URL}/register-verify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: credential.email,
+            password: credential.password,
+          }),
+        }
+      );
+  
       const data = await response.json();
-      console.log("Registration successful:", data);
+  
+      if (!response.ok) {
+        // Show error message from backend if available
+        toast.error(data?.message || "Registration failed");
+        return;
+      }
+  
+      toast.success("Your email has been sent for approval. Please wait for admin verification.");
+
       setCredential({ email: "", password: "", confirmPassword: "" });
-      navigate("/");
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 4000);
+      
     } catch (error) {
       console.error("Error during registration:", error);
+      toast.error("Something went wrong. Please try again later.");
     }
   };
+  
   
   return (
     <div className="flex flex-col w-full items-center">
