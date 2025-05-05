@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(cors({
-    origin: ['https://foodie-c255.onrender.com','http://lunch.cvt.s3-website.ap-south-1.amazonaws.com', 'http://localhost:5173'], // Trusted origins
+    origin: ['https://foodie-c255.onrender.com','https://d1ljzcz0mv3gix.cloudfront.net', 'http://localhost:5173'], // Trusted origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // if cookies or auth headers are involved
 }));
