@@ -38,12 +38,12 @@ const SummaryPage = () => {
   const handleArrivedAtOffice = async (name) => {
     // Add confirmation dialog
     const isConfirmed = window.confirm(`Are you sure "${name}" has arrived at the office?`);
-    
+
     // Only proceed if user confirmed
     if (!isConfirmed) {
       return; // Exit the function if user cancels
     }
-    
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/done`, {
         method: "POST",
@@ -105,23 +105,43 @@ const SummaryPage = () => {
 
               {opt.url && (
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 w-full sm:w-auto">
-                  <a
-                    href={opt.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(`${import.meta.env.VITE_API_PRODUCTOION_URL}/api/launch-swiggy`, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({ name: opt.name, voteCount: opt.vote_count, url: opt.url }), // send data
+                        });
+
+                        const data = await response.json();
+                        if (response.ok) {
+                          toast.success("Swiggy script launched successfully!");
+                          console.log(data.output);
+                        } else {
+                          toast.error("Failed to launch script");
+                          console.error(data);
+                        }
+                      } catch (error) {
+                        toast.error("Error occurred while launching script");
+                        console.error("Launch Error:", error);
+                      }
+                    }}
                     className="w-full sm:w-auto text-center bg-orange-500 text-white px-4 py-2 text-sm sm:text-base rounded-full font-semibold hover:bg-orange-600 transition duration-200 shadow-md"
                   >
                     Swiggy
-                  </a>
+                  </Button>
+
                   <Button
                     variant="secondary"
                     onClick={() => handleArrivedAtOffice(opt.name)}
                     disabled={clickedNames.includes(opt.name)}
-                    className={`w-full sm:w-auto text-sm cursor-pointer sm:text-base px-4 py-2 rounded-full font-semibold shadow-md transition duration-200 ${
-                      clickedNames.includes(opt.name)
-                        ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-blue-500 text-white hover:bg-blue-600"
-                    }`}
+                    className={`w-full sm:w-auto text-sm cursor-pointer sm:text-base px-4 py-2 rounded-full font-semibold shadow-md transition duration-200 ${clickedNames.includes(opt.name)
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
                   >
                     {clickedNames.includes(opt.name)
                       ? "Already Arrived"
@@ -129,6 +149,7 @@ const SummaryPage = () => {
                   </Button>
                 </div>
               )}
+
             </div>
           ))}
         </div>
