@@ -30,19 +30,6 @@ def get_driver():
 
     return webdriver.Chrome(service=service, options=chrome_options)
 
-# # Setup Chrome options
-# chrome_options = Options()
-# chrome_options.add_argument("--start-maximized")
-
-# # Setup WebDriver with WebDriver Manager
-# driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-# # Open Swiggy
-# driver.get("https://www.swiggy.com")
-# time.sleep(3)
-
-# wait = WebDriverWait(driver, 10)
-
 
 def extract_restaurant_name(url):
     parts = url.split("/")
@@ -53,12 +40,12 @@ def extract_restaurant_name(url):
 def run_swiggy_automation(name, vote_count, restaurant_name):
     driver = get_driver()
     wait = WebDriverWait(driver, 10)
-    driver.get("https://www.swiggy.com")
+    driver.get("https://www.swiggy.com/restaurants")
     time.sleep(3)
     
     # Wait for and click the "Sign In" button
     try:
-        sign_in_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Sign in']")))
+        sign_in_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Sign In']")))
         sign_in_button.click()
 
         # Wait for phone number input field to appear
@@ -89,36 +76,6 @@ def run_swiggy_automation(name, vote_count, restaurant_name):
     except:
         print("VERIFY OTP button not found or not clickable.")
 
-    # Wait for the "Food" delivery box to appear and click it
-    try:
-        login_success = wait.until(EC.presence_of_element_located((By.XPATH, "//div/div[*[name()='svg' and @width='40' and @height='40']]")))
-        print("✅ Login successful.")
-        time.sleep(3)
-    
-        # ✅ Navigate to Restaurants page only after login
-        xpaths = ["//a[@href='https://www.swiggy.com/restaurants']","//div[@data-testid='navbar_container__2337992']//a[@title='Food']"]
-        for path in xpaths:
-            try:
-                food_link = wait.until(EC.presence_of_element_located((By.XPATH, path)))
-                driver.execute_script("arguments[0].scrollIntoView();", food_link)
-                driver.execute_script("arguments[0].click();", food_link)
-                print("✅ Navigated to Restaurants page.")
-                time.sleep(3)
-                break
-            except:
-                continue
-
-    except:
-        print("❌ Login failed — Restaurants page access is blocked.")
-
-    # Wait and click the "Not Now" button (if it appears)
-    try:
-        not_now_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[text()='NOT NOW']")))
-        not_now_button.click()
-        print("✅ Clicked 'Not Now' button.")
-        time.sleep(3)
-    except:
-        print("⚠️ 'Not Now' button not found or already dismissed.")
     
     # Click "Change" button for location
     try:
