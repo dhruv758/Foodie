@@ -198,6 +198,14 @@ def run_swiggy_automation(name, vote_count, restaurant_name):
         add_button.click()
         print("🛒 Clicked 'Add' on first food item.")
         time.sleep(2)
+
+        start_afresh_buttons = driver.find_elements(By.XPATH, "//button[contains(text(), 'Yes, start afresh')]")
+        if start_afresh_buttons:
+            start_afresh_buttons[0].click()
+            print("✅ Clicked 'Start Afresh' button.")
+            time.sleep(2)
+        else:
+            print("⚠️ 'Start Afresh' button not found - proceeding to next step.")
     except Exception as e:
         print("❌ Failed to click 'Add' on food item:", e)
 
