@@ -1,56 +1,21 @@
-// const { exec } = require("child_process");
-// const path = require("path");
+const axios = require("axios");
 
-// const launchSwiggyScript = (req, res) => {
-//   const scriptPath = path.join(__dirname, "../../python-scripts/launch_swiggy.py"); // Adjust path accordingly
-
-//   exec(`python3 ${scriptPath}`, (error, stdout, stderr) => {
-//     if (error) {
-//       console.error(`Error: ${error.message}`);
-//       return res.status(500).json({ error: "Script execution failed" });
-//     }
-//     if (stderr) {
-//       console.error(`stderr: ${stderr}`);
-//       return res.status(500).json({ error: "Script error", stderr });
-//     }
-
-//     console.log(`stdout: ${stdout}`);
-//     res.status(200).json({ message: "Swiggy script launched successfully", output: stdout });
-//   });
-// };
-
-// module.exports = { launchSwiggyScript };
-
-
-
-const { exec } = require("child_process");
-const path = require("path");
-const fs = require("fs");
-
-const launchSwiggyScript = (req, res) => {
+const launchSwiggyScript = async (req, res) => {
   const { name, voteCount, url } = req.body;
 
-  // Validate input
   if (!name || !voteCount || !url) {
-    return res.status(400).json({ error: "Missing required fields: name, voteCount, or url" });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  // Extract restaurant name from URL (e.g., 'biryani-by-kilo-rest35270' -> 'Biryani By Kilo')
   const urlParts = url.split("/");
-  const restaurantSlug = urlParts[urlParts.length - 1]; // Get 'biryani-by-kilo-rest35270'
+  const restaurantSlug = urlParts[urlParts.length - 1];
   const restaurantName = restaurantSlug
     .split("-")
-    .slice(0, -1) // Remove the 'rest35270' part
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-    .join(" "); // Join with spaces, e.g., 'Biryani By Kilo'
+    .slice(0, -1)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
-
-  const scriptDir = path.join(__dirname, "../../python-scripts");
-  const scriptPath = path.join(scriptDir, "launch_swiggy.py");
-  const tempDataPath = path.join(scriptDir, "temp_data.json");
-
-  // Save data to JSON file
-  const dataToWrite = {
+  const dataToSend = {
     name,
     voteCount,
     url,
@@ -58,29 +23,17 @@ const launchSwiggyScript = (req, res) => {
   };
 
   try {
-    fs.writeFileSync(tempDataPath, JSON.stringify(dataToWrite));
-  } catch (err) {
-    console.error("Failed to write temp_data.json:", err);
-    return res.status(500).json({ error: "Failed to prepare input data" });
-  }
+    const ec2IP = "http://<YOUR-EC2-IP>:5000/trigger"; // Replace with actual IP
+    const response = await axios.post(ec2IP, dataToSend);
 
-  // Execute Python script
-  exec(`python3 ${scriptPath}`, (error, stdout, stderr) => {
-    if (error) {
-      console.error("Execution error:", error.message);
-      return res.status(500).json({ error: "Script execution failed", message: error.message });
-    }
-    if (stderr) {
-      console.error("stderr:", stderr);
-      return res.status(500).json({ error: "Script error", stderr });
-    }
-
-    console.log("stdout:", stdout);
     return res.status(200).json({
-      message: "Swiggy script launched successfully",
-      output: stdout,
+      message: "Swiggy script triggered via EC2",
+      data: response.data,
     });
-  });
+  } catch (error) {
+    console.error("EC2 Trigger Failed:", error.message);
+    return res.status(500).json({ error: "Failed to trigger script on EC2" });
+  }
 };
 
 module.exports = { launchSwiggyScript };
