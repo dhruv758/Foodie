@@ -43,7 +43,7 @@ app.get("/test-ec2", async (req, res) => {
     const fetch = (...args) =>
       import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
-    const response = await fetch("http://13.204.80.58:5000/trigger", {
+    const response = await fetch("http://13.204.80.58/trigger", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ test: "ping" }),
