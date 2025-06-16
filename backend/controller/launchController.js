@@ -23,7 +23,7 @@ const launchSwiggyScript = async (req, res) => {
   };
 
   try {
-    const ec2IP = "http://<YOUR-EC2-IP>:5000/trigger"; // Replace with actual IP
+    const ec2IP = "http://13.204.80.58:5000/trigger"; // Replace with actual IP
     const response = await axios.post(ec2IP, dataToSend);
 
     return res.status(200).json({
