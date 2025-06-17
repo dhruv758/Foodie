@@ -17,7 +17,7 @@ chrome_options.add_argument("--start-maximized")
 # Setup WebDriver with WebDriver Manager
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-# Open Swiggy
+# Open Swigg
 driver.get("https://www.swiggy.com/restaurants")
 time.sleep(3)
 
@@ -285,6 +285,44 @@ try:
     time.sleep(2)
 except Exception as e:
     print(":x: Failed to click on Cart icon:", e)
+
+# After clicking the cart icon
+try:
+    # Wait for Add New button and click
+    add_new_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[contains(text(),'Add New') ]")))
+    add_new_button.click()
+    print(":white_check_mark: Clicked 'Add New' button to add address.")
+    time.sleep(2)
+except Exception as e:
+    print(":x: Failed to click 'Add New' button:", e)
+
+# Fill "Door/Flat No." field
+try:
+    flat_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='building']")))
+    flat_input.send_keys("3rd floor, Tower-A, Graphix")
+    print(":white_check_mark: Entered Door/Flat No.")
+    time.sleep(1)
+except Exception as e:
+    print(":x: Failed to enter Door/Flat No:", e)
+
+# Fill "Landmark" field
+try:
+    landmark_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@name='landmark']")))
+    landmark_input.send_keys("Near Noida Electronic City Metro, Block A, Industrial Area, Sector 62, Noida, Uttar Pradesh 201301")
+    print(":white_check_mark: Entered Landmark.")
+    time.sleep(1)
+except Exception as e:
+    print(":x: Failed to enter Landmark:", e)
+
+# Click "Save Address & Proceed"
+try:
+    save_proceed_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[text()='SAVE ADDRESS & PROCEED']")))
+    save_proceed_button.click()
+    print(":white_check_mark: Clicked 'Save Address & Proceed' button.")
+    time.sleep(3)
+except Exception as e:
+    print(":x: Failed to click 'Save Address & Proceed':", e)
+
 
 try:
     input("\nPress Enter when you want to close the browser (or just close it manually)...")
