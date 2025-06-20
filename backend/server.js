@@ -26,15 +26,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(cors({
-    origin: [
-        'https://foodie-c255.onrender.com',
-        'https://d1ljzcz0mv3gix.cloudfront.net', 
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://frontend:5173'  // Docker container name
-    ], // Trusted origins
+    origin: '*', // Allow all origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // if cookies or auth headers are involved
+    credentials: false // Must be false if origin is '*'
 }));
 
 

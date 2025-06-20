@@ -8,9 +8,8 @@ services:
     volumes:
       - ./SWIGGY:/app/SWIGGY  # Mount SWIGGY folder for shared access
       - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
-    environment:
-      - NODE_ENV=production
-      - MONGO_URL=mongodb+srv://dhruvrawat:dDy0YA3V2IaERoHn@cluster2.v0i3bl8.mongodb.net/pollApp
+    env_file:
+      - ./backend/.env
     networks:
       - app-network
 
@@ -21,8 +20,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - NODE_ENV=development
+    env_file:
+      - ./frontend/.env
     depends_on:
       - backend
     networks:

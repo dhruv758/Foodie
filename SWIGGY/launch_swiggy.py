@@ -110,7 +110,7 @@ except:
 
 # Wait and click the "Not Now" button (if it appears)
 try:
-    not_now_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[text()='NOT NOW']")))
+    not_now_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[text()='OK GOT IT']")))
     not_now_button.click()
     print("✅ Clicked 'Not Now' button.")
     time.sleep(3)
