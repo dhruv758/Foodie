@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:8080"  # Changed from 5000 to 3000 to avoid port conflict
+    volumes:
+      - ./SWIGGY:/app/SWIGGY  # Mount SWIGGY folder for shared access
+      - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb+srv://dhruvrawat:dDy0YA3V2IaERoHn@cluster2.v0i3bl8.mongodb.net/pollApp
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"  # Vite dev server port
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

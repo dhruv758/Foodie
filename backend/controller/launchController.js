@@ -1,5 +1,3 @@
-
-
 const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
@@ -21,41 +19,80 @@ const launchSwiggyScript = (req, res) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
     .join(" "); // Join with spaces, e.g., 'Biryani By Kilo'
 
-
-  const scriptDir = path.join(__dirname, "../../python-scripts");
-  const scriptPath = path.join(scriptDir, "launch_swiggy.py");
+  // Use the mounted path inside the Docker container
+  const scriptDir = "/app/SWIGGY";
   const tempDataPath = path.join(scriptDir, "temp_data.json");
+
+  console.log("Debug info:");
+  console.log("- scriptDir:", scriptDir);
+  console.log("- tempDataPath:", tempDataPath);
+  console.log("- Current working directory:", process.cwd());
+  console.log("- SWIGGY directory exists:", fs.existsSync(scriptDir));
 
   // Save data to JSON file
   const dataToWrite = {
     name,
     voteCount,
-    url,
     restaurantName,
   };
 
+  console.log("- Data to write:", dataToWrite);
+
   try {
-    fs.writeFileSync(tempDataPath, JSON.stringify(dataToWrite));
+    // Ensure the directory exists
+    if (!fs.existsSync(scriptDir)) {
+      console.error("SWIGGY directory does not exist:", scriptDir);
+      return res.status(500).json({ error: "SWIGGY directory not found" });
+    }
+
+    fs.writeFileSync(tempDataPath, JSON.stringify(dataToWrite, null, 2));
+    console.log("- File written successfully to:", tempDataPath);
   } catch (err) {
     console.error("Failed to write temp_data.json:", err);
-    return res.status(500).json({ error: "Failed to prepare input data" });
+    console.error("- Error details:", err.message);
+    console.error("- Error code:", err.code);
+    return res.status(500).json({ error: "Failed to prepare input data", details: err.message });
   }
 
-  // Execute Python script
-  exec(`python3 ${scriptPath}`, (error, stdout, stderr) => {
+  // First, ensure selenium-chrome is running
+  const startSeleniumCommand = `cd ${scriptDir} && docker compose up -d selenium-chrome`;
+  
+  exec(startSeleniumCommand, (error, stdout, stderr) => {
     if (error) {
-      console.error("Execution error:", error.message);
-      return res.status(500).json({ error: "Script execution failed", message: error.message });
-    }
-    if (stderr) {
-      console.error("stderr:", stderr);
-      return res.status(500).json({ error: "Script error", stderr });
+      console.error("Failed to start selenium-chrome:", error.message);
+      return res.status(500).json({ error: "Failed to start Selenium container", message: error.message });
     }
 
-    console.log("stdout:", stdout);
-    return res.status(200).json({
-      message: "Swiggy script launched successfully",
-      output: stdout,
+    console.log("Selenium Chrome started successfully");
+    
+    // Now start the swiggy-bot container
+    const startSwiggyBotCommand = `cd ${scriptDir} && docker compose up -d swiggy-bot`;
+    
+    exec(startSwiggyBotCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error("SWIGGY bot execution error:", error.message);
+        return res.status(500).json({ error: "SWIGGY bot execution failed", message: error.message });
+      }
+
+      console.log("SWIGGY bot started successfully");
+      
+      // Copy the temp_data.json file to the swiggy-bot container
+      const copyDataCommand = `docker cp ${tempDataPath} swiggy-swiggy-bot-1:/app/temp_data.json`;
+      
+      exec(copyDataCommand, (error, stdout, stderr) => {
+        if (error) {
+          console.error("Failed to copy data to swiggy-bot container:", error.message);
+          return res.status(500).json({ error: "Failed to copy data to container", message: error.message });
+        }
+
+        console.log("Data copied to swiggy-bot container successfully");
+        
+        return res.status(200).json({
+          message: "SWIGGY automation triggered successfully",
+          output: stdout,
+          note: "Check Docker Desktop to see the swiggy-bot container running. Backend is now on port 3000."
+        });
+      });
     });
   });
 };
