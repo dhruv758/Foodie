@@ -14,17 +14,12 @@ services:
     build: .
     depends_on:
       - selenium-chrome
-    volumes:
-      - swiggy_data:/app
     environment:
       - PYTHONUNBUFFERED=1
     stdin_open: true
     tty: true
     networks:
       - swiggy_network
-
-volumes:
-  swiggy_data:
 
 networks:
   swiggy_network:

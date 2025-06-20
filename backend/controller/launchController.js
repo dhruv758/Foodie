@@ -65,32 +65,44 @@ const launchSwiggyScript = (req, res) => {
 
     console.log("Selenium Chrome started successfully");
     
-    // Now start the swiggy-bot container
-    const startSwiggyBotCommand = `cd ${scriptDir} && docker compose up -d swiggy-bot`;
+    // Build the swiggy-bot container to ensure latest code
+    const buildSwiggyBotCommand = `cd ${scriptDir} && docker compose build --no-cache swiggy-bot`;
     
-    exec(startSwiggyBotCommand, (error, stdout, stderr) => {
+    exec(buildSwiggyBotCommand, (error, stdout, stderr) => {
       if (error) {
-        console.error("SWIGGY bot execution error:", error.message);
-        return res.status(500).json({ error: "SWIGGY bot execution failed", message: error.message });
+        console.error("Failed to build swiggy-bot:", error.message);
+        return res.status(500).json({ error: "Failed to build SWIGGY bot container", message: error.message });
       }
 
-      console.log("SWIGGY bot started successfully");
+      console.log("SWIGGY bot built successfully");
       
-      // Copy the temp_data.json file to the swiggy-bot container
-      const copyDataCommand = `docker cp ${tempDataPath} swiggy-swiggy-bot-1:/app/temp_data.json`;
+      // Now start the swiggy-bot container
+      const startSwiggyBotCommand = `cd ${scriptDir} && docker compose up -d swiggy-bot`;
       
-      exec(copyDataCommand, (error, stdout, stderr) => {
+      exec(startSwiggyBotCommand, (error, stdout, stderr) => {
         if (error) {
-          console.error("Failed to copy data to swiggy-bot container:", error.message);
-          return res.status(500).json({ error: "Failed to copy data to container", message: error.message });
+          console.error("SWIGGY bot execution error:", error.message);
+          return res.status(500).json({ error: "SWIGGY bot execution failed", message: error.message });
         }
 
-        console.log("Data copied to swiggy-bot container successfully");
+        console.log("SWIGGY bot started successfully");
         
-        return res.status(200).json({
-          message: "SWIGGY automation triggered successfully",
-          output: stdout,
-          note: "Check Docker Desktop to see the swiggy-bot container running. Backend is now on port 3000."
+        // Copy the temp_data.json file to the swiggy-bot container
+        const copyDataCommand = `docker cp ${tempDataPath} swiggy-swiggy-bot-1:/app/temp_data.json`;
+        
+        exec(copyDataCommand, (error, stdout, stderr) => {
+          if (error) {
+            console.error("Failed to copy data to swiggy-bot container:", error.message);
+            return res.status(500).json({ error: "Failed to copy data to container", message: error.message });
+          }
+
+          console.log("Data copied to swiggy-bot container successfully");
+          
+          return res.status(200).json({
+            message: "SWIGGY automation triggered successfully",
+            output: stdout,
+            note: "Check Docker Desktop to see the swiggy-bot container running. Backend is now on port 3000."
+          });
         });
       });
     });
