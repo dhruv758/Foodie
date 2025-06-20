@@ -43,7 +43,7 @@ driver.get("https://www.swiggy.com/")
 wait = WebDriverWait(driver, 10)
 
 # --- You can paste the rest of your logic from above here without change ---
-sign_in_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Sign In']")))
+sign_in_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//a[text()='Sign in']")))
 sign_in_button.click()
 
 
